@@ -4,8 +4,8 @@ import no.ssb.dc.api.content.ContentStateKey;
 import no.ssb.dc.api.content.ContentStore;
 import no.ssb.dc.api.content.ContentStreamBuffer;
 import no.ssb.dc.api.content.ContentStreamProducer;
+import no.ssb.dc.api.content.HttpRequestInfo;
 import no.ssb.dc.api.content.MetadataContent;
-import no.ssb.dc.api.http.Metadata;
 import no.ssb.dc.api.ulid.ULIDStateHolder;
 import no.ssb.rawdata.api.RawdataClient;
 import no.ssb.rawdata.api.RawdataClientInitializer;
@@ -39,31 +39,31 @@ public class RawdataClientContentStore implements ContentStore {
     }
 
     @Override
-    public void addPaginationDocument(String namespace, String contentKey, byte[] content, Metadata metadata) {
+    public void addPaginationDocument(String namespace, String contentKey, byte[] content, HttpRequestInfo httpRequestInfo) {
         ContentStreamProducer producer = contentStream.producer(namespace + "-pages");
         ContentStreamBuffer.Builder bufferBuilder = producer.builder();
 
-        String position = metadata.getCorrelationIds().first().toString();
+        String position = httpRequestInfo.getCorrelationIds().first().toString();
         bufferBuilder.position(position);
 
-        MetadataContent manifest = getMetadataContent(namespace + "-pages", position, contentKey, content, MetadataContent.ResourceType.PAGE, metadata);
+        MetadataContent manifest = getMetadataContent(namespace + "-pages", position, contentKey, content, MetadataContent.ResourceType.PAGE, httpRequestInfo);
         bufferBuilder.buffer(contentKey, content, manifest);
         producer.produce(bufferBuilder);
     }
 
     @Override
-    public void bufferPaginationEntryDocument(String namespace, String position, String contentKey, byte[] content, Metadata metadata) {
+    public void bufferPaginationEntryDocument(String namespace, String position, String contentKey, byte[] content, HttpRequestInfo httpRequestInfo) {
         ContentStreamProducer producer = contentStream.producer(namespace);
         ContentStreamBuffer.Builder bufferBuilder = contentBuffers.computeIfAbsent(new ContentStateKey(namespace, position), contentBuilder -> producer.builder());
-        MetadataContent manifest = getMetadataContent(namespace, position, contentKey, content, MetadataContent.ResourceType.ENTRY, metadata);
+        MetadataContent manifest = getMetadataContent(namespace, position, contentKey, content, MetadataContent.ResourceType.ENTRY, httpRequestInfo);
         bufferBuilder.position(position).buffer(contentKey, content, manifest);
     }
 
     @Override
-    public void bufferDocument(String namespace, String position, String contentKey, byte[] content, Metadata metadata) {
+    public void bufferDocument(String namespace, String position, String contentKey, byte[] content, HttpRequestInfo httpRequestInfo) {
         ContentStreamProducer producer = contentStream.producer(namespace);
         ContentStreamBuffer.Builder bufferBuilder = contentBuffers.computeIfAbsent(new ContentStateKey(namespace, position), contentBuilder -> producer.builder());
-        MetadataContent manifest = getMetadataContent(namespace, position, contentKey, content, MetadataContent.ResourceType.DOCUMENT, metadata);
+        MetadataContent manifest = getMetadataContent(namespace, position, contentKey, content, MetadataContent.ResourceType.DOCUMENT, httpRequestInfo);
         bufferBuilder.position(position).buffer(contentKey, content, manifest);
     }
 
@@ -80,19 +80,19 @@ public class RawdataClientContentStore implements ContentStore {
         producer.publish(position);
     }
 
-    MetadataContent getMetadataContent(String namespace, String position, String contentKey, byte[] content, MetadataContent.ResourceType resourceType, Metadata metadata) {
+    MetadataContent getMetadataContent(String namespace, String position, String contentKey, byte[] content, MetadataContent.ResourceType resourceType, HttpRequestInfo httpRequestInfo) {
         return new MetadataContent.Builder()
                 .resourceType(resourceType)
-                .correlationId(metadata.getCorrelationIds())
-                .url(metadata.getUrl())
+                .correlationId(httpRequestInfo.getCorrelationIds())
+                .url(httpRequestInfo.getUrl())
                 .namespace(namespace)
                 .position(position)
                 .contentKey(contentKey)
-                .contentType(metadata.getResponseHeaders().firstValue("content-type").orElseGet(() -> "application/octet-stream"))
+                .contentType(httpRequestInfo.getResponseHeaders().firstValue("content-type").orElseGet(() -> "application/octet-stream"))
                 .contentLength(content.length)
-                .requestDurationNanoTime(metadata.getRequestDurationNanoSeconds())
-                .requestHeaders(metadata.getRequestHeaders())
-                .responseHeaders(metadata.getResponseHeaders())
+                .requestDurationNanoTime(httpRequestInfo.getRequestDurationNanoSeconds())
+                .requestHeaders(httpRequestInfo.getRequestHeaders())
+                .responseHeaders(httpRequestInfo.getResponseHeaders())
                 .build();
     }
 
