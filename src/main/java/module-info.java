@@ -1,7 +1,7 @@
 import no.ssb.dc.api.content.ContentStoreInitializer;
 import no.ssb.dc.content.provider.rawdata.RawdataClientContentStoreInitializer;
 
-module no.ssb.dc.contnet.rawdata.provider {
+module no.ssb.dc.content.rawdata {
 
     requires no.ssb.service.provider.api;
     requires no.ssb.rawdata.api;
