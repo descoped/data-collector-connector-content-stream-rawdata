@@ -47,8 +47,11 @@ public class RawdataClientContentStore implements ContentStore {
         bufferBuilder.position(position);
 
         MetadataContent manifest = getMetadataContent(namespace + "-pages", position, contentKey, content, MetadataContent.ResourceType.PAGE, httpRequestInfo);
+
         bufferBuilder.buffer(contentKey, content, manifest);
         producer.produce(bufferBuilder);
+
+        producer.publish(position);
     }
 
     @Override
