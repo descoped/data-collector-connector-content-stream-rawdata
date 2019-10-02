@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>no.ssb.dc</groupId>
-    <artifactId>data-collector-content-store-rawdata-provider</artifactId>
+    <artifactId>data-collector-provider-content-store-rawdata</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Data Collector Content Store Rawdata Provider</name>
-    <description>Data Collector Content Store Rawdata Provider</description>
+    <name>Data Collector Content Provider Store Rawdata</name>
+    <description>Data Collector Provider Content Store Rawdata</description>
     <url>https://github.com/statisticsnorway/</url>
     <inceptionYear>2019</inceptionYear>
 
@@ -49,8 +49,8 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/statisticsnorway/data-collector-content-store-rawdata-provider.git</connection>
-        <developerConnection>scm:git:git@github.com:statisticsnorway/data-collector-content-store-rawdata-provider.git</developerConnection>
+        <connection>scm:git:git://github.com/statisticsnorway/data-collector-provider-content-store-rawdata.git</connection>
+        <developerConnection>scm:git:git@github.com:statisticsnorway/data-collector-provider-content-store-rawdata.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
