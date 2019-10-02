@@ -8,7 +8,7 @@
     <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Data Collector Content Provider Store Rawdata</name>
+    <name>Data Collector Provider Content Store Rawdata</name>
     <description>Data Collector Provider Content Store Rawdata</description>
     <url>https://github.com/statisticsnorway/</url>
     <inceptionYear>2019</inceptionYear>
