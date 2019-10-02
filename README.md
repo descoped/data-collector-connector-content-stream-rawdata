@@ -1,2 +1,2 @@
-# data-collector-content-store-rawdata-provider
-Data Collector Content Store Rawdata Provider
+# data-collector-provider-content-store-rawdata
+Data Collector Provider Content Store Rawdata
