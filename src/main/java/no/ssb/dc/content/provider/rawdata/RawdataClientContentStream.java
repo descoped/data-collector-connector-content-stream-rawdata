@@ -18,14 +18,14 @@ public class RawdataClientContentStream implements ContentStream {
     }
 
     @Override
-    public String lastPosition(String namespace) {
-        RawdataMessage message = client.lastMessage(namespace);
+    public String lastPosition(String topic) {
+        RawdataMessage message = client.lastMessage(topic);
         return message != null ? message.position() : null;
     }
 
     @Override
-    public ContentStreamProducer producer(String namespace) {
-        return producerMap.computeIfAbsent(namespace, p -> new RawdataClientContentStreamProducer(client.producer(namespace)));
+    public ContentStreamProducer producer(String topic) {
+        return producerMap.computeIfAbsent(topic, p -> new RawdataClientContentStreamProducer(client.producer(topic)));
     }
 
 }

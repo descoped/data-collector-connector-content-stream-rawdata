@@ -26,25 +26,25 @@ public class RawdataClientContentStore implements ContentStore {
     }
 
     @Override
-    public String lastPosition(String namespace) {
-        return contentStream.lastPosition(namespace);
+    public String lastPosition(String topic) {
+        return contentStream.lastPosition(topic);
     }
 
     @Override
-    public Set<String> contentKeys(String namespace, String position) {
-        ContentStreamBuffer.Builder builder = contentBuffers.get(new ContentStateKey(namespace, position));
+    public Set<String> contentKeys(String topic, String position) {
+        ContentStreamBuffer.Builder builder = contentBuffers.get(new ContentStateKey(topic, position));
         return (builder == null ? new HashSet<>() : builder.keys());
     }
 
     @Override
-    public void addPaginationDocument(String namespace, String contentKey, byte[] content, HttpRequestInfo httpRequestInfo) {
-        ContentStreamProducer producer = contentStream.producer(namespace + "-pages");
+    public void addPaginationDocument(String topic, String contentKey, byte[] content, HttpRequestInfo httpRequestInfo) {
+        ContentStreamProducer producer = contentStream.producer(topic + "-pages");
         ContentStreamBuffer.Builder bufferBuilder = producer.builder();
 
         String position = httpRequestInfo.getCorrelationIds().first().toString();
         bufferBuilder.position(position);
 
-        MetadataContent manifest = getMetadataContent(namespace + "-pages", position, contentKey, content, MetadataContent.ResourceType.PAGE, httpRequestInfo);
+        MetadataContent manifest = getMetadataContent(topic + "-pages", position, contentKey, content, MetadataContent.ResourceType.PAGE, httpRequestInfo);
 
         bufferBuilder.buffer(contentKey, content, manifest);
         producer.produce(bufferBuilder);
@@ -53,26 +53,26 @@ public class RawdataClientContentStore implements ContentStore {
     }
 
     @Override
-    public void bufferPaginationEntryDocument(String namespace, String position, String contentKey, byte[] content, HttpRequestInfo httpRequestInfo) {
-        ContentStreamProducer producer = contentStream.producer(namespace);
-        ContentStreamBuffer.Builder bufferBuilder = contentBuffers.computeIfAbsent(new ContentStateKey(namespace, position), contentBuilder -> producer.builder());
-        MetadataContent manifest = getMetadataContent(namespace, position, contentKey, content, MetadataContent.ResourceType.ENTRY, httpRequestInfo);
+    public void bufferPaginationEntryDocument(String topic, String position, String contentKey, byte[] content, HttpRequestInfo httpRequestInfo) {
+        ContentStreamProducer producer = contentStream.producer(topic);
+        ContentStreamBuffer.Builder bufferBuilder = contentBuffers.computeIfAbsent(new ContentStateKey(topic, position), contentBuilder -> producer.builder());
+        MetadataContent manifest = getMetadataContent(topic, position, contentKey, content, MetadataContent.ResourceType.ENTRY, httpRequestInfo);
         bufferBuilder.position(position).buffer(contentKey, content, manifest);
     }
 
     @Override
-    public void bufferDocument(String namespace, String position, String contentKey, byte[] content, HttpRequestInfo httpRequestInfo) {
-        ContentStreamProducer producer = contentStream.producer(namespace);
-        ContentStreamBuffer.Builder bufferBuilder = contentBuffers.computeIfAbsent(new ContentStateKey(namespace, position), contentBuilder -> producer.builder());
-        MetadataContent manifest = getMetadataContent(namespace, position, contentKey, content, MetadataContent.ResourceType.DOCUMENT, httpRequestInfo);
+    public void bufferDocument(String topic, String position, String contentKey, byte[] content, HttpRequestInfo httpRequestInfo) {
+        ContentStreamProducer producer = contentStream.producer(topic);
+        ContentStreamBuffer.Builder bufferBuilder = contentBuffers.computeIfAbsent(new ContentStateKey(topic, position), contentBuilder -> producer.builder());
+        MetadataContent manifest = getMetadataContent(topic, position, contentKey, content, MetadataContent.ResourceType.DOCUMENT, httpRequestInfo);
         bufferBuilder.position(position).buffer(contentKey, content, manifest);
     }
 
     @Override
-    public void publish(String namespace, String... position) {
-        ContentStreamProducer producer = contentStream.producer(namespace);
+    public void publish(String topic, String... position) {
+        ContentStreamProducer producer = contentStream.producer(topic);
         for (String pos : position) {
-            ContentStateKey contentStateKey = new ContentStateKey(namespace, pos);
+            ContentStateKey contentStateKey = new ContentStateKey(topic, pos);
             ContentStreamBuffer.Builder bufferBuilder = contentBuffers.computeIfAbsent(contentStateKey, contentBuilder -> producer.builder());
 
             producer.produce(bufferBuilder);
@@ -81,12 +81,12 @@ public class RawdataClientContentStore implements ContentStore {
         producer.publish(position);
     }
 
-    MetadataContent getMetadataContent(String namespace, String position, String contentKey, byte[] content, MetadataContent.ResourceType resourceType, HttpRequestInfo httpRequestInfo) {
+    MetadataContent getMetadataContent(String topic, String position, String contentKey, byte[] content, MetadataContent.ResourceType resourceType, HttpRequestInfo httpRequestInfo) {
         return new MetadataContent.Builder()
                 .resourceType(resourceType)
                 .correlationId(httpRequestInfo.getCorrelationIds())
                 .url(httpRequestInfo.getUrl())
-                .namespace(namespace)
+                .topic(topic)
                 .position(position)
                 .contentKey(contentKey)
                 .contentType(httpRequestInfo.getResponseHeaders().firstValue("content-type").orElseGet(() -> "application/octet-stream"))
