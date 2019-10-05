@@ -6,7 +6,6 @@ import no.ssb.dc.api.content.ContentStreamBuffer;
 import no.ssb.dc.api.content.ContentStreamProducer;
 import no.ssb.dc.api.content.HttpRequestInfo;
 import no.ssb.dc.api.content.MetadataContent;
-import no.ssb.dc.api.ulid.ULIDStateHolder;
 import no.ssb.rawdata.api.RawdataClient;
 import no.ssb.rawdata.api.RawdataClientInitializer;
 import no.ssb.service.provider.api.ProviderConfigurator;
@@ -19,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RawdataClientContentStore implements ContentStore {
 
     private final RawdataClientContentStream contentStream;
-    private final ULIDStateHolder ulidStateHolder = new ULIDStateHolder();
     private final Map<ContentStateKey, ContentStreamBuffer.Builder> contentBuffers = new ConcurrentHashMap<>();
 
     public RawdataClientContentStore(Map<String, String> configuration) {
