@@ -247,7 +247,6 @@
                 <version>2.19.1</version> <!-- Newer version do not yet work with Java 11 -->
                 <configuration>
                     <argLine>
-                        ${argLine}
                     </argLine>
                 </configuration>
             </plugin>
