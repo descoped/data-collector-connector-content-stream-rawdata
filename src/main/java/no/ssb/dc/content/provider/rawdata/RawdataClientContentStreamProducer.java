@@ -3,7 +3,7 @@ package no.ssb.dc.content.provider.rawdata;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import no.ssb.dc.api.content.ContentStreamBuffer;
 import no.ssb.dc.api.content.ContentStreamProducer;
-import no.ssb.dc.api.util.JacksonFactory;
+import no.ssb.dc.api.util.JsonParser;
 import no.ssb.rawdata.api.RawdataMessage;
 import no.ssb.rawdata.api.RawdataProducer;
 
@@ -24,9 +24,10 @@ public class RawdataClientContentStreamProducer implements ContentStreamProducer
 
     @Override
     public void produce(ContentStreamBuffer.Builder bufferBuilder) {
-        ArrayNode arrayNode = JacksonFactory.instance().createArrayNode();
+        JsonParser jsonParser = JsonParser.createJsonParser();
+        ArrayNode arrayNode = jsonParser.createArrayNode();
         bufferBuilder.manifest().forEach(metadataContent -> arrayNode.add(metadataContent.getElementNode()));
-        byte[] manifestJson = JacksonFactory.instance().toJSON(arrayNode).getBytes();
+        byte[] manifestJson = jsonParser.toJSON(arrayNode).getBytes();
         bufferBuilder.buffer("manifest.json", manifestJson, null);
 
         ContentStreamBuffer contentBuffer = bufferBuilder.build();
