@@ -7,8 +7,6 @@ import no.ssb.dc.api.content.ContentStreamProducer;
 import no.ssb.dc.api.content.HttpRequestInfo;
 import no.ssb.dc.api.content.MetadataContent;
 import no.ssb.rawdata.api.RawdataClient;
-import no.ssb.rawdata.api.RawdataClientInitializer;
-import no.ssb.service.provider.api.ProviderConfigurator;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -20,8 +18,7 @@ public class RawdataClientContentStore implements ContentStore {
     private final RawdataClientContentStream contentStream;
     private final Map<ContentStateKey, ContentStreamBuffer.Builder> contentBuffers = new ConcurrentHashMap<>();
 
-    public RawdataClientContentStore(Map<String, String> configuration) {
-        RawdataClient client = ProviderConfigurator.configure(configuration, configuration.get("rawdata.client.provider"), RawdataClientInitializer.class);
+    public RawdataClientContentStore(RawdataClient client) {
         contentStream = new RawdataClientContentStream(client);
     }
 
