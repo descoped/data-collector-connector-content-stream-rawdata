@@ -19,7 +19,7 @@ public class RawdataClientContentStream implements ContentStream {
 
     @Override
     public String lastPosition(String topic) {
-        client.producer(topic); // todo workaround because pg rawdata client doesn't call createTopicIfNotExists(topicName) on lastMessage
+        producerMap.computeIfAbsent(topic, p -> new RawdataClientContentStreamProducer(client.producer(topic))); // todo workaround because pg rawdata client doesn't call createTopicIfNotExists(topicName) on lastMessage
         RawdataMessage message = client.lastMessage(topic);
         return message != null ? message.position() : null;
     }
