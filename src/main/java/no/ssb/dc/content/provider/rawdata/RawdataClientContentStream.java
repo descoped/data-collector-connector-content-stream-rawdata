@@ -1,5 +1,6 @@
 package no.ssb.dc.content.provider.rawdata;
 
+import no.ssb.dc.api.content.ClosedContentStreamException;
 import no.ssb.dc.api.content.ContentStream;
 import no.ssb.dc.api.content.ContentStreamProducer;
 import no.ssb.rawdata.api.RawdataClient;
@@ -7,11 +8,13 @@ import no.ssb.rawdata.api.RawdataMessage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RawdataClientContentStream implements ContentStream {
 
     private final RawdataClient client;
     private final Map<String, ContentStreamProducer> producerMap = new ConcurrentHashMap<>();
+    private final AtomicBoolean closed = new AtomicBoolean(false);
 
     public RawdataClientContentStream(RawdataClient client) {
         this.client = client;
@@ -19,6 +22,9 @@ public class RawdataClientContentStream implements ContentStream {
 
     @Override
     public String lastPosition(String topic) {
+        if (isClosed()) {
+            throw new ClosedContentStreamException();
+        }
         producerMap.computeIfAbsent(topic, p -> new RawdataClientContentStreamProducer(client.producer(topic))); // todo workaround because pg rawdata client doesn't call createTopicIfNotExists(topicName) on lastMessage
         RawdataMessage message = client.lastMessage(topic);
         return message != null ? message.position() : null;
@@ -26,7 +32,23 @@ public class RawdataClientContentStream implements ContentStream {
 
     @Override
     public ContentStreamProducer producer(String topic) {
+        if (isClosed()) {
+            throw new ClosedContentStreamException();
+        }
         return producerMap.computeIfAbsent(topic, p -> new RawdataClientContentStreamProducer(client.producer(topic)));
     }
 
+    public boolean isClosed() {
+        return closed.get();
+    }
+
+    @Override
+    public void close() throws Exception {
+        for (ContentStreamProducer producer : producerMap.values()) {
+            producer.close();
+        }
+        producerMap.clear();
+        client.close();
+        closed.set(true);
+    }
 }

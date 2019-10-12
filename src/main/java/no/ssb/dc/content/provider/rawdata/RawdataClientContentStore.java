@@ -12,11 +12,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RawdataClientContentStore implements ContentStore {
 
     private final RawdataClientContentStream contentStream;
     private final Map<ContentStateKey, ContentStreamBuffer.Builder> contentBuffers = new ConcurrentHashMap<>();
+    private final AtomicBoolean closed = new AtomicBoolean(false);
 
     public RawdataClientContentStore(RawdataClient client) {
         contentStream = new RawdataClientContentStream(client);
@@ -66,16 +68,16 @@ public class RawdataClientContentStore implements ContentStore {
     }
 
     @Override
-    public void publish(String topic, String... position) {
+    public void publish(String topic, String... positions) {
         ContentStreamProducer producer = contentStream.producer(topic);
-        for (String pos : position) {
-            ContentStateKey contentStateKey = new ContentStateKey(topic, pos);
+        for (String position : positions) {
+            ContentStateKey contentStateKey = new ContentStateKey(topic, position);
             ContentStreamBuffer.Builder bufferBuilder = contentBuffers.computeIfAbsent(contentStateKey, contentBuilder -> producer.builder());
 
             producer.produce(bufferBuilder);
             contentBuffers.remove(contentStateKey);
         }
-        producer.publish(position);
+        producer.publish(positions);
     }
 
     MetadataContent getMetadataContent(String topic, String position, String contentKey, byte[] content, MetadataContent.ResourceType resourceType, HttpRequestInfo httpRequestInfo) {
@@ -94,4 +96,13 @@ public class RawdataClientContentStore implements ContentStore {
                 .build();
     }
 
+    public boolean isClosed() {
+        return closed.get();
+    }
+
+    @Override
+    public void close() throws Exception {
+        contentStream.close();
+        closed.set(true);
+    }
 }
