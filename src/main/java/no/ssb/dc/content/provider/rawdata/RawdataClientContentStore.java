@@ -96,6 +96,7 @@ public class RawdataClientContentStore implements ContentStore {
                 .build();
     }
 
+    @Override
     public boolean isClosed() {
         return closed.get();
     }
