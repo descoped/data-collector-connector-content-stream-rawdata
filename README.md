@@ -1,2 +1,3 @@
-# data-collector-provider-content-store-rawdata
-Data Collector Provider Content Store Rawdata
+# Data Collector Connector Content Stream Rawdata
+
+For more information about Data Collector, please refer to the [Data Collector documentation](https://github.com/statisticsnorway/data-collector-project).
