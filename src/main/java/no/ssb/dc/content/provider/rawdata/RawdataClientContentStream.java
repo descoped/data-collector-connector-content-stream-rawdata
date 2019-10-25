@@ -25,7 +25,6 @@ public class RawdataClientContentStream implements ContentStream {
         if (isClosed()) {
             throw new ClosedContentStreamException();
         }
-        producerMap.computeIfAbsent(topic, p -> new RawdataClientContentStreamProducer(client.producer(topic))); // todo workaround because pg rawdata client doesn't call createTopicIfNotExists(topicName) on lastMessage
         RawdataMessage message = client.lastMessage(topic);
         return message != null ? message.position() : null;
     }
