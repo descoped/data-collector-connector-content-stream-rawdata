@@ -14,17 +14,36 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class RawdataClientContentStore implements ContentStore {
 
     private final HealthContentStreamMonitor monitor;
     private final RawdataClientContentStream contentStream;
     private final Map<ContentStateKey, ContentStreamBuffer.Builder> contentBuffers = new ConcurrentHashMap<>();
+    private final Map<String, Lock> lockByTopic = new ConcurrentHashMap<>();
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     public RawdataClientContentStore(RawdataClient client) {
         contentStream = new RawdataClientContentStream(client);
         monitor = new HealthContentStreamMonitor(this::isClosed);
+    }
+
+    @Override
+    public void lock(String topic) {
+        Lock lock = lockByTopic.computeIfAbsent(topic, t -> new ReentrantLock());
+        try {
+            lock.lockInterruptibly();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void unlock(String topic) {
+        Lock lock = lockByTopic.get(topic);
+        lock.unlock();
     }
 
     @Override
