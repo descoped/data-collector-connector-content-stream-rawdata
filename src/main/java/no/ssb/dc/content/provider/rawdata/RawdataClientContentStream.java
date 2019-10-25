@@ -37,17 +37,32 @@ public class RawdataClientContentStream implements ContentStream {
         return producerMap.computeIfAbsent(topic, p -> new RawdataClientContentStreamProducer(client.producer(topic)));
     }
 
+    @Override
+    public void closeAndRemoveProducer(String topic) {
+        ContentStreamProducer producer = producerMap.remove(topic);
+        if (producer != null) {
+            try {
+                producer.close();
+            } catch (RuntimeException | Error e) {
+                throw e;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     public boolean isClosed() {
         return closed.get();
     }
 
     @Override
     public void close() throws Exception {
-        for (ContentStreamProducer producer : producerMap.values()) {
-            producer.close();
+        if (closed.compareAndSet(false, true)) {
+            for (ContentStreamProducer producer : producerMap.values()) {
+                producer.close();
+            }
+            producerMap.clear();
+            client.close();
         }
-        producerMap.clear();
-        client.close();
-        closed.set(true);
     }
 }

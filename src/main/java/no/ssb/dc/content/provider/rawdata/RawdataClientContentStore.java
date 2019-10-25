@@ -152,8 +152,19 @@ public class RawdataClientContentStore implements ContentStore {
     }
 
     @Override
+    public void closeTopic(String topic) {
+        lock(topic);
+        try {
+            contentStream.closeAndRemoveProducer(topic);
+        } finally {
+            unlock(topic);
+        }
+    }
+
+    @Override
     public void close() throws Exception {
-        contentStream.close();
-        closed.set(true);
+        if (closed.compareAndSet(false, true)) {
+            contentStream.close();
+        }
     }
 }

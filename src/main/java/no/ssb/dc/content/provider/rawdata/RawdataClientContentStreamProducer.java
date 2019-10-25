@@ -66,8 +66,9 @@ public class RawdataClientContentStreamProducer implements ContentStreamProducer
 
     @Override
     public void close() throws Exception {
-        producer.close();
-        closed.set(true);
+        if (closed.compareAndSet(false, true)) {
+            producer.close();
+        }
     }
 
 }
