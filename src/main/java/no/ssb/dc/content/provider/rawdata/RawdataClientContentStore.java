@@ -8,6 +8,8 @@ import no.ssb.dc.api.content.HealthContentStreamMonitor;
 import no.ssb.dc.api.content.HttpRequestInfo;
 import no.ssb.dc.api.content.MetadataContent;
 import no.ssb.rawdata.api.RawdataClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -18,6 +20,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class RawdataClientContentStore implements ContentStore {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RawdataClientContentStore.class);
 
     private final HealthContentStreamMonitor monitor;
     private final RawdataClientContentStream contentStream;
@@ -48,7 +52,14 @@ public class RawdataClientContentStore implements ContentStore {
 
     @Override
     public String lastPosition(String topic) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Find lastPosition({}){}", topic, locateJavaCall());
+        }
         return contentStream.lastPosition(topic);
+    }
+
+    private String locateJavaCall() {
+        return Thread.currentThread().getStackTrace().length > 3 ? "\n\tat " +Thread.currentThread().getStackTrace()[3] : "";
     }
 
     @Override
