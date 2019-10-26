@@ -11,6 +11,7 @@ import no.ssb.rawdata.api.RawdataClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +19,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class RawdataClientContentStore implements ContentStore {
 
@@ -59,7 +62,8 @@ public class RawdataClientContentStore implements ContentStore {
     }
 
     private String locateJavaCall() {
-        return Thread.currentThread().getStackTrace().length > 3 ? "\n\tat " +Thread.currentThread().getStackTrace()[3] : "";
+        Stream<StackTraceElement> stackTraceList = Arrays.stream(Thread.currentThread().getStackTrace());
+        return  "\n\tat " + stackTraceList.skip(2).limit(5).map(StackTraceElement::toString).collect(Collectors.joining("\n\t   "));
     }
 
     @Override
