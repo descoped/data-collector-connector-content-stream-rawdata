@@ -6,8 +6,9 @@ module no.ssb.dc.content.rawdata {
     requires no.ssb.service.provider.api;
     requires no.ssb.rawdata.api;
     requires no.ssb.dc.api;
+
+    requires org.slf4j;
     requires de.huxhorn.sulky.ulid;
-    requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.databind;
     requires com.fasterxml.jackson.annotation;
 
