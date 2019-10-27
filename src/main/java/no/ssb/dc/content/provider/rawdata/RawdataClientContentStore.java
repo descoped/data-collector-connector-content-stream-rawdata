@@ -180,6 +180,7 @@ public class RawdataClientContentStore implements ContentStore {
     public void close() throws Exception {
         if (closed.compareAndSet(false, true)) {
             contentStream.close();
+            LOG.debug("Closed content stream!");
         }
     }
 }
