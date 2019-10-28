@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
@@ -34,7 +35,7 @@ public class RawdataClientContentStore implements ContentStore {
 
     public RawdataClientContentStore(RawdataClient client) {
         contentStream = new RawdataClientContentStream(client);
-        monitor = new HealthContentStreamMonitor(this::isClosed);
+        monitor = new HealthContentStreamMonitor(this::isClosed, this::activePositionCount, this::activeBufferCount);
     }
 
     @Override
@@ -129,7 +130,7 @@ public class RawdataClientContentStore implements ContentStore {
             ContentStreamBuffer.Builder bufferBuilder = contentBuffers.computeIfAbsent(contentStateKey, contentBuilder -> producer.builder());
 
             producer.produce(bufferBuilder);
-            monitor.addPublishedBufferCount(bufferBuilder.keys().size() - 1); // subtract to not count manifest, because they're not counted in buffering
+            monitor.addPublishedBufferCount(bufferBuilder.keys().size() - 1); // subtract manifest buffer
             monitor.updateLastPublishedBufferCount(bufferBuilder.keys().size() - 1);
             contentBuffers.remove(contentStateKey);
         }
@@ -182,5 +183,15 @@ public class RawdataClientContentStore implements ContentStore {
             contentStream.close();
             LOG.debug("Closed content stream!");
         }
+    }
+
+    Integer activePositionCount() {
+        return contentBuffers.keySet().size();
+    }
+
+    Integer activeBufferCount() {
+        AtomicInteger bufferCount = new AtomicInteger();
+        contentBuffers.values().forEach(bufferBuilder -> bufferCount.addAndGet(bufferBuilder.keys().size()));
+        return bufferCount.get();
     }
 }
