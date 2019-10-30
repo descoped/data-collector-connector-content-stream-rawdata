@@ -11,7 +11,6 @@ import no.ssb.rawdata.api.RawdataClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -20,8 +19,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class RawdataClientContentStore implements ContentStore {
 
@@ -56,15 +53,7 @@ public class RawdataClientContentStore implements ContentStore {
 
     @Override
     public String lastPosition(String topic) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Find lastPosition({}){}", topic, locateJavaCall());
-        }
         return contentStream.lastPosition(topic);
-    }
-
-    private String locateJavaCall() {
-        Stream<StackTraceElement> stackTraceList = Arrays.stream(Thread.currentThread().getStackTrace());
-        return  "\n\tat " + stackTraceList.skip(2).limit(5).map(StackTraceElement::toString).collect(Collectors.joining("\n\t   "));
     }
 
     @Override
