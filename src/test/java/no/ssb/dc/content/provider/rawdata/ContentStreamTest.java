@@ -8,11 +8,11 @@ import no.ssb.dc.api.content.ContentStreamProducer;
 import no.ssb.rawdata.api.RawdataClient;
 import no.ssb.rawdata.api.RawdataClientInitializer;
 import no.ssb.service.provider.api.ProviderConfigurator;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.testng.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ContentStreamTest {
 
