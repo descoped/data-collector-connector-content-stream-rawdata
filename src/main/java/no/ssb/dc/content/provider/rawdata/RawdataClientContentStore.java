@@ -63,13 +63,13 @@ public class RawdataClientContentStore implements ContentStore {
     }
 
     @Override
-    public void addPaginationDocument(String topic, String contentKey, byte[] content, HttpRequestInfo httpRequestInfo) {
+    public void addPaginationDocument(String topic, String position, String contentKey, byte[] content, HttpRequestInfo httpRequestInfo) {
         long past = System.currentTimeMillis();
         String paginationDocumentTopic = topic + "-pages";
         ContentStreamProducer producer = contentStream.producer(paginationDocumentTopic);
         ContentStreamBuffer.Builder bufferBuilder = producer.builder();
 
-        String position = httpRequestInfo.getCorrelationIds().first().toString();
+        //String position = httpRequestInfo.getCorrelationIds().first().toString();
         bufferBuilder.position(position);
 
         MetadataContent manifest = getMetadataContent(paginationDocumentTopic, position, contentKey, content, MetadataContent.ResourceType.PAGE, httpRequestInfo);
