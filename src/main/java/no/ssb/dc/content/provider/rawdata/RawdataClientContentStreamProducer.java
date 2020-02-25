@@ -41,7 +41,9 @@ public class RawdataClientContentStreamProducer implements ContentStreamProducer
         bufferBuilder.manifest().forEach(metadataContent -> arrayNode.add(metadataContent.getElementNode()));
         byte[] manifestJson = jsonParser.toJSON(arrayNode).getBytes();
 
-        manifestJson = tryEncryptContent.apply(manifestJson);
+        if (tryEncryptContent != null) {
+            manifestJson = tryEncryptContent.apply(manifestJson);
+        }
 
         bufferBuilder.buffer("manifest.json", manifestJson, null);
 
