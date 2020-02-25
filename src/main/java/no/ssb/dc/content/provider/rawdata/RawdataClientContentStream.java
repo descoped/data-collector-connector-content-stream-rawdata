@@ -9,15 +9,18 @@ import no.ssb.rawdata.api.RawdataMessage;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
 public class RawdataClientContentStream implements ContentStream {
 
     private final RawdataClient client;
+    private final Function<byte[], byte[]> tryEncryptContent;
     private final Map<String, ContentStreamProducer> producerMap = new ConcurrentHashMap<>();
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    public RawdataClientContentStream(RawdataClient client) {
+    public RawdataClientContentStream(RawdataClient client, Function<byte[], byte[]> tryEncryptContent) {
         this.client = client;
+        this.tryEncryptContent = tryEncryptContent;
     }
 
     @Override
@@ -34,7 +37,7 @@ public class RawdataClientContentStream implements ContentStream {
         if (isClosed()) {
             throw new ClosedContentStreamException();
         }
-        return producerMap.computeIfAbsent(topic, p -> new RawdataClientContentStreamProducer(client.producer(topic)));
+        return producerMap.computeIfAbsent(topic, p -> new RawdataClientContentStreamProducer(client.producer(topic), tryEncryptContent));
     }
 
     @Override

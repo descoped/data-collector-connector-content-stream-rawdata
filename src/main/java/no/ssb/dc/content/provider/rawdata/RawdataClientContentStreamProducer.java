@@ -10,14 +10,17 @@ import no.ssb.rawdata.api.RawdataProducer;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
 public class RawdataClientContentStreamProducer implements ContentStreamProducer {
 
     private final RawdataProducer producer;
+    private final Function<byte[], byte[]> tryEncryptContent;
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    public RawdataClientContentStreamProducer(RawdataProducer producer) {
+    public RawdataClientContentStreamProducer(RawdataProducer producer, Function<byte[], byte[]> tryEncryptContent) {
         this.producer = producer;
+        this.tryEncryptContent = tryEncryptContent;
     }
 
     @Override
@@ -37,6 +40,9 @@ public class RawdataClientContentStreamProducer implements ContentStreamProducer
         ArrayNode arrayNode = jsonParser.createArrayNode();
         bufferBuilder.manifest().forEach(metadataContent -> arrayNode.add(metadataContent.getElementNode()));
         byte[] manifestJson = jsonParser.toJSON(arrayNode).getBytes();
+
+        manifestJson = tryEncryptContent.apply(manifestJson);
+
         bufferBuilder.buffer("manifest.json", manifestJson, null);
 
         ContentStreamBuffer contentBuffer = bufferBuilder.build();

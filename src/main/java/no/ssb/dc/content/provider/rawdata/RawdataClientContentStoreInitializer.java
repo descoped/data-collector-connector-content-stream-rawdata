@@ -31,7 +31,10 @@ public class RawdataClientContentStoreInitializer implements ContentStoreInitial
     public ContentStore initialize(Map<String, String> configuration) {
         LOG.info("Content stream connector: {}", configuration.get("content.stream.connector"));
         LOG.info("Rawdata client provider: {}", configuration.get("rawdata.client.provider"));
+        LOG.info("Rawdata encryption enabled: {}", configuration.containsKey("rawdata.encryption.key"));
+        final char[] encryptionKey = configuration.containsKey("rawdata.encryption.key") ? configuration.get("rawdata.encryption.key").toCharArray() : null;
+        final byte[] encryptionSalt = configuration.containsKey("rawdata.encryption.salt") ? configuration.get("rawdata.encryption.salt").getBytes() : null;
         RawdataClient client = ProviderConfigurator.configure(configuration, configuration.get("rawdata.client.provider"), RawdataClientInitializer.class);
-        return new RawdataClientContentStore(client);
+        return new RawdataClientContentStore(client, encryptionKey, encryptionSalt);
     }
 }

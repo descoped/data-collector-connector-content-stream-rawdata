@@ -8,9 +8,11 @@ import no.ssb.dc.api.content.HealthContentStreamMonitor;
 import no.ssb.dc.api.content.HttpRequestInfo;
 import no.ssb.dc.api.content.MetadataContent;
 import no.ssb.rawdata.api.RawdataClient;
+import no.ssb.rawdata.payload.encryption.EncryptionClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -26,13 +28,31 @@ public class RawdataClientContentStore implements ContentStore {
 
     private final HealthContentStreamMonitor monitor;
     private final RawdataClientContentStream contentStream;
+    private final EncryptionClient encryptionClient;
+    private final byte[] secretKey;
     private final Map<ContentStateKey, ContentStreamBuffer.Builder> contentBuffers = new ConcurrentHashMap<>();
     private final Map<String, Lock> lockByTopic = new ConcurrentHashMap<>();
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    public RawdataClientContentStore(RawdataClient client) {
-        contentStream = new RawdataClientContentStream(client);
-        monitor = new HealthContentStreamMonitor(this::isClosed, this::activePositionCount, this::activeBufferCount);
+    public RawdataClientContentStore(RawdataClient client, final char[] encryptionKey, final byte[] encryptionSalt) {
+        this.encryptionClient = new EncryptionClient();
+        if (encryptionKey != null && encryptionKey.length > 0 && encryptionSalt != null && encryptionSalt.length > 0) {
+            this.secretKey = encryptionClient.generateSecretKey(encryptionKey, encryptionSalt).getEncoded();
+            Arrays.fill(encryptionKey, (char) 0);
+            Arrays.fill(encryptionSalt, (byte) 0);
+        } else {
+            this.secretKey = null;
+        }
+        this.contentStream = new RawdataClientContentStream(client, this::tryEncryptContent);
+        this.monitor = new HealthContentStreamMonitor(this::isClosed, this::activePositionCount, this::activeBufferCount);
+    }
+
+    private byte[] tryEncryptContent(byte[] content) {
+        if (secretKey != null) {
+            byte[] iv = encryptionClient.generateIV();
+            return encryptionClient.encrypt(secretKey, iv, content);
+        }
+        return content;
     }
 
     @Override
@@ -69,10 +89,11 @@ public class RawdataClientContentStore implements ContentStore {
         ContentStreamProducer producer = contentStream.producer(paginationDocumentTopic);
         ContentStreamBuffer.Builder bufferBuilder = producer.builder();
 
-        //String position = httpRequestInfo.getCorrelationIds().first().toString();
         bufferBuilder.position(position);
 
         MetadataContent manifest = getMetadataContent(paginationDocumentTopic, position, contentKey, content, MetadataContent.ResourceType.PAGE, httpRequestInfo);
+
+        content = tryEncryptContent(content);
 
         bufferBuilder.buffer(contentKey, content, manifest);
         producer.produce(bufferBuilder);
@@ -90,6 +111,9 @@ public class RawdataClientContentStore implements ContentStore {
         ContentStreamProducer producer = contentStream.producer(topic);
         ContentStreamBuffer.Builder bufferBuilder = contentBuffers.computeIfAbsent(new ContentStateKey(topic, position), contentBuilder -> producer.builder());
         MetadataContent manifest = getMetadataContent(topic, position, contentKey, content, MetadataContent.ResourceType.ENTRY, httpRequestInfo);
+
+        content = tryEncryptContent(content);
+
         bufferBuilder.position(position).buffer(contentKey, content, manifest);
 
         monitor.incrementEntryBufferCount();
@@ -103,6 +127,9 @@ public class RawdataClientContentStore implements ContentStore {
         ContentStreamProducer producer = contentStream.producer(topic);
         ContentStreamBuffer.Builder bufferBuilder = contentBuffers.computeIfAbsent(new ContentStateKey(topic, position), contentBuilder -> producer.builder());
         MetadataContent manifest = getMetadataContent(topic, position, contentKey, content, MetadataContent.ResourceType.DOCUMENT, httpRequestInfo);
+
+        content = tryEncryptContent(content);
+
         bufferBuilder.position(position).buffer(contentKey, content, manifest);
 
         monitor.incrementDocumentBufferCount();
