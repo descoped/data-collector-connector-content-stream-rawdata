@@ -167,6 +167,7 @@ public class RawdataClientContentStore implements ContentStore {
                 .resourceType(resourceType)
                 .correlationId(httpRequestInfo.getCorrelationIds())
                 .url(httpRequestInfo.getUrl())
+                .statusCode(httpRequestInfo.getStatusCode())
                 .topic(topic)
                 .position(position)
                 .contentKey(contentKey)

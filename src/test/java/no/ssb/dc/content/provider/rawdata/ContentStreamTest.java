@@ -32,7 +32,7 @@ public class ContentStreamTest {
                 ContentStoreInitializer.class
         );
         assertNotNull(contentStore);
-        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(CorrelationIds.create(ExecutionContext.empty()), null, new Headers(), new Headers(), -1);
+        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(CorrelationIds.create(ExecutionContext.empty()), null, -1, new Headers(), new Headers(), -1);
         contentStore.bufferDocument("topic", "1", "entry", "PAYLOAD".getBytes(), httpRequestInfo);
         assertEquals(1, contentStore.contentKeys("topic", "1").size());
         contentStore.publish("topic", "1");
