@@ -176,6 +176,7 @@ public class RawdataClientContentStore implements ContentStore {
                 .requestDurationNanoTime(httpRequestInfo.getRequestDurationNanoSeconds())
                 .requestHeaders(httpRequestInfo.getRequestHeaders())
                 .responseHeaders(httpRequestInfo.getResponseHeaders())
+                .state(httpRequestInfo.getState())
                 .build();
     }
 
