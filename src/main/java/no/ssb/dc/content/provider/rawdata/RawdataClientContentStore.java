@@ -47,6 +47,11 @@ public class RawdataClientContentStore implements ContentStore {
         this.monitor = new HealthContentStreamMonitor(this::isClosed, this::activePositionCount, this::activeBufferCount);
     }
 
+    // TODO see comment in UndertowApplication.service loader. This is a hack.
+    public RawdataClientContentStream getContentStream() {
+        return contentStream;
+    }
+
     private byte[] tryEncryptContent(byte[] content) {
         if (secretKey != null) {
             byte[] iv = encryptionClient.generateIV();
