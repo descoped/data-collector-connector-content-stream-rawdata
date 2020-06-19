@@ -45,6 +45,11 @@ public class RawdataClientContentStreamBuffer implements ContentStreamBuffer {
     }
 
     @Override
+    public byte[] get(String contentKey) {
+        return data.get(contentKey);
+    }
+
+    @Override
     public Map<String, byte[]> data() {
         return data;
     }
