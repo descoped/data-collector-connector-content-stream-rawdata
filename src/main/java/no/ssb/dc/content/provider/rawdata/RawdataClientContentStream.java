@@ -21,6 +21,10 @@ public class RawdataClientContentStream implements ContentStream {
     private final Map<String, ContentStreamConsumer> consumerMap = new ConcurrentHashMap<>();
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
+    public RawdataClientContentStream(RawdataClient client) {
+        this(client, null);
+    }
+
     public RawdataClientContentStream(RawdataClient client, Function<byte[], byte[]> tryEncryptContent) {
         this.client = client;
         this.tryEncryptContent = tryEncryptContent;

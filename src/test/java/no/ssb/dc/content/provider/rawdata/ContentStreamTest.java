@@ -45,7 +45,7 @@ public class ContentStreamTest {
     public void thatRawdataClientProducesContent() {
         RawdataClient client = ProviderConfigurator.configure(Map.of(), "memory", RawdataClientInitializer.class);
         EncryptionClient encryptionClient = new EncryptionClient();
-        ContentStream contentStream = new RawdataClientContentStream(client, null);
+        ContentStream contentStream = new RawdataClientContentStream(client);
         ContentStreamProducer producer = contentStream.producer("ns");
 
         ContentStreamBuffer.Builder builder = producer.builder();
