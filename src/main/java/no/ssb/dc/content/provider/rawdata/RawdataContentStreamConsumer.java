@@ -6,10 +6,12 @@ import no.ssb.dc.api.content.ContentStreamConsumer;
 import no.ssb.rawdata.api.RawdataConsumer;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RawdataContentStreamConsumer implements ContentStreamConsumer {
 
     private final RawdataConsumer consumer;
+    private final AtomicBoolean closed = new AtomicBoolean(false);
 
     public RawdataContentStreamConsumer(RawdataConsumer consumer) {
         this.consumer = consumer;
@@ -30,6 +32,9 @@ public class RawdataContentStreamConsumer implements ContentStreamConsumer {
 
     @Override
     public void seek(long timestamp) {
+        if (isClosed()) {
+            throw new ClosedContentStreamException();
+        }
         consumer.seek(timestamp);
     }
 
@@ -40,6 +45,8 @@ public class RawdataContentStreamConsumer implements ContentStreamConsumer {
 
     @Override
     public void close() throws Exception {
-        consumer.close();
+        if (closed.compareAndSet(false, true)) {
+            consumer.close();
+        }
     }
 }

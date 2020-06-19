@@ -26,11 +26,6 @@ public class RawdataClientContentStream implements ContentStream {
         this.tryEncryptContent = tryEncryptContent;
     }
 
-    // TODO see comment in UndertowApplication.service loader. This is a hack.
-    public RawdataClient getClient() {
-        return client;
-    }
-
     @Override
     public String lastPosition(String topic) {
         if (isClosed()) {
@@ -80,7 +75,11 @@ public class RawdataClientContentStream implements ContentStream {
             for (ContentStreamProducer producer : producerMap.values()) {
                 producer.close();
             }
+            for (ContentStreamConsumer consumer : consumerMap.values()) {
+                consumer.close();
+            }
             producerMap.clear();
+            consumerMap.clear();
             client.close();
         }
     }
