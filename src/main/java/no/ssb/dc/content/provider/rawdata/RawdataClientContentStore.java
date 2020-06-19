@@ -2,6 +2,7 @@ package no.ssb.dc.content.provider.rawdata;
 
 import no.ssb.dc.api.content.ContentStateKey;
 import no.ssb.dc.api.content.ContentStore;
+import no.ssb.dc.api.content.ContentStream;
 import no.ssb.dc.api.content.ContentStreamBuffer;
 import no.ssb.dc.api.content.ContentStreamProducer;
 import no.ssb.dc.api.content.HealthContentStreamMonitor;
@@ -47,11 +48,6 @@ public class RawdataClientContentStore implements ContentStore {
         this.monitor = new HealthContentStreamMonitor(this::isClosed, this::activePositionCount, this::activeBufferCount);
     }
 
-    // TODO see comment in UndertowApplication.service loader. This is a hack.
-    public RawdataClientContentStream getContentStream() {
-        return contentStream;
-    }
-
     private byte[] tryEncryptContent(byte[] content) {
         if (secretKey != null) {
             byte[] iv = encryptionClient.generateIV();
@@ -74,6 +70,11 @@ public class RawdataClientContentStore implements ContentStore {
     public void unlock(String topic) {
         Lock lock = lockByTopic.get(topic);
         lock.unlock();
+    }
+
+    @Override
+    public ContentStream contentStream() {
+        return contentStream;
     }
 
     @Override

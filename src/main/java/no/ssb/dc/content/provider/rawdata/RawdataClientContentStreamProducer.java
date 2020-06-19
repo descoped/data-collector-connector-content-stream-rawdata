@@ -32,7 +32,7 @@ public class RawdataClientContentStreamProducer implements ContentStreamProducer
     }
 
     @Override
-    public void produce(ContentStreamBuffer.Builder bufferBuilder) {
+    public ContentStreamProducer produce(ContentStreamBuffer.Builder bufferBuilder) {
         if (isClosed()) {
             throw new ClosedContentStreamException();
         }
@@ -58,6 +58,8 @@ public class RawdataClientContentStreamProducer implements ContentStreamProducer
         }
 
         producer.buffer(messageBuilder);
+
+        return this;
     }
 
     @Override

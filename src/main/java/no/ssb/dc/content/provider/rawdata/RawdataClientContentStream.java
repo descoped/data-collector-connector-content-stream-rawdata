@@ -2,6 +2,8 @@ package no.ssb.dc.content.provider.rawdata;
 
 import no.ssb.dc.api.content.ClosedContentStreamException;
 import no.ssb.dc.api.content.ContentStream;
+import no.ssb.dc.api.content.ContentStreamConsumer;
+import no.ssb.dc.api.content.ContentStreamCursor;
 import no.ssb.dc.api.content.ContentStreamProducer;
 import no.ssb.rawdata.api.RawdataClient;
 import no.ssb.rawdata.api.RawdataMessage;
@@ -16,6 +18,7 @@ public class RawdataClientContentStream implements ContentStream {
     private final RawdataClient client;
     private final Function<byte[], byte[]> tryEncryptContent;
     private final Map<String, ContentStreamProducer> producerMap = new ConcurrentHashMap<>();
+    private final Map<String, ContentStreamConsumer> consumerMap = new ConcurrentHashMap<>();
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     public RawdataClientContentStream(RawdataClient client, Function<byte[], byte[]> tryEncryptContent) {
@@ -43,6 +46,14 @@ public class RawdataClientContentStream implements ContentStream {
             throw new ClosedContentStreamException();
         }
         return producerMap.computeIfAbsent(topic, p -> new RawdataClientContentStreamProducer(client.producer(topic), tryEncryptContent));
+    }
+
+    @Override
+    public ContentStreamConsumer consumer(String topic, ContentStreamCursor cursor) {
+        if (isClosed()) {
+            throw new ClosedContentStreamException();
+        }
+        return consumerMap.computeIfAbsent(topic, c -> new RawdataContentStreamConsumer(client.consumer(topic)));
     }
 
     @Override
