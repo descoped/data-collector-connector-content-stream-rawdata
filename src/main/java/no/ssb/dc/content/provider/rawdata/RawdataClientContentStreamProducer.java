@@ -81,6 +81,7 @@ public class RawdataClientContentStreamProducer implements ContentStreamProducer
     public void close() throws Exception {
         if (closed.compareAndSet(false, true)) {
             closeAndRemoveProducer.accept(producer.topic());
+            producer.close();
         }
     }
 

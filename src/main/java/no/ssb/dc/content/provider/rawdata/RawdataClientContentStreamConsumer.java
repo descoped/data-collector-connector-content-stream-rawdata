@@ -50,6 +50,7 @@ public class RawdataClientContentStreamConsumer implements ContentStreamConsumer
     public void close() throws Exception {
         if (closed.compareAndSet(false, true)) {
             closeAndRemoveConsumer.accept(consumer.topic());
+            consumer.close();
         }
     }
 }
