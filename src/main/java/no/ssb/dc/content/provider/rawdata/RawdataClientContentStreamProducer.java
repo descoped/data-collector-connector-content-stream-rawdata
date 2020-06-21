@@ -10,16 +10,19 @@ import no.ssb.rawdata.api.RawdataProducer;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class RawdataClientContentStreamProducer implements ContentStreamProducer {
 
     private final RawdataProducer producer;
+    private final Consumer<String> closeAndRemoveProducer;
     private final Function<byte[], byte[]> tryEncryptContent;
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    public RawdataClientContentStreamProducer(RawdataProducer producer, Function<byte[], byte[]> tryEncryptContent) {
+    public RawdataClientContentStreamProducer(RawdataProducer producer, Consumer<String> closeAndRemoveProducer, Function<byte[], byte[]> tryEncryptContent) {
         this.producer = producer;
+        this.closeAndRemoveProducer = closeAndRemoveProducer;
         this.tryEncryptContent = tryEncryptContent;
     }
 
@@ -77,7 +80,7 @@ public class RawdataClientContentStreamProducer implements ContentStreamProducer
     @Override
     public void close() throws Exception {
         if (closed.compareAndSet(false, true)) {
-            producer.close();
+            closeAndRemoveProducer.accept(producer.topic());
         }
     }
 

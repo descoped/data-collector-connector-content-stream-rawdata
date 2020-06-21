@@ -44,7 +44,7 @@ public class RawdataClientContentStream implements ContentStream {
         if (isClosed()) {
             throw new ClosedContentStreamException();
         }
-        return producerMap.computeIfAbsent(topic, p -> new RawdataClientContentStreamProducer(client.producer(topic), tryEncryptContent));
+        return producerMap.computeIfAbsent(topic, p -> new RawdataClientContentStreamProducer(client.producer(topic), this::closeAndRemoveProducer, tryEncryptContent));
     }
 
     @Override
@@ -52,7 +52,7 @@ public class RawdataClientContentStream implements ContentStream {
         if (isClosed()) {
             throw new ClosedContentStreamException();
         }
-        return consumerMap.computeIfAbsent(topic, c -> new RawdataClientContentStreamConsumer(client.consumer(topic)));
+        return consumerMap.computeIfAbsent(topic, c -> new RawdataClientContentStreamConsumer(client.consumer(topic), this::closeAndRemoveConsumer));
     }
 
     @Override
@@ -61,6 +61,20 @@ public class RawdataClientContentStream implements ContentStream {
         if (producer != null) {
             try {
                 producer.close();
+            } catch (RuntimeException | Error e) {
+                throw e;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @Override
+    public void closeAndRemoveConsumer(String topic) {
+        ContentStreamConsumer consumer = consumerMap.remove(topic);
+        if (consumer != null) {
+            try {
+                consumer.close();
             } catch (RuntimeException | Error e) {
                 throw e;
             } catch (Exception e) {

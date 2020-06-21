@@ -7,14 +7,17 @@ import no.ssb.rawdata.api.RawdataConsumer;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 public class RawdataClientContentStreamConsumer implements ContentStreamConsumer {
 
     private final RawdataConsumer consumer;
+    private final Consumer<String> closeAndRemoveConsumer;
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    public RawdataClientContentStreamConsumer(RawdataConsumer consumer) {
+    public RawdataClientContentStreamConsumer(RawdataConsumer consumer, Consumer<String> closeAndRemoveConsumer) {
         this.consumer = consumer;
+        this.closeAndRemoveConsumer = closeAndRemoveConsumer;
     }
 
     @Override
@@ -46,7 +49,7 @@ public class RawdataClientContentStreamConsumer implements ContentStreamConsumer
     @Override
     public void close() throws Exception {
         if (closed.compareAndSet(false, true)) {
-            consumer.close();
+            closeAndRemoveConsumer.accept(consumer.topic());
         }
     }
 }
