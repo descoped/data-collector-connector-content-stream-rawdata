@@ -8,12 +8,12 @@ import no.ssb.rawdata.api.RawdataConsumer;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class RawdataContentStreamConsumer implements ContentStreamConsumer {
+public class RawdataClientContentStreamConsumer implements ContentStreamConsumer {
 
     private final RawdataConsumer consumer;
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    public RawdataContentStreamConsumer(RawdataConsumer consumer) {
+    public RawdataClientContentStreamConsumer(RawdataConsumer consumer) {
         this.consumer = consumer;
     }
 

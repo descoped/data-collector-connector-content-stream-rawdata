@@ -52,7 +52,7 @@ public class RawdataClientContentStream implements ContentStream {
         if (isClosed()) {
             throw new ClosedContentStreamException();
         }
-        return consumerMap.computeIfAbsent(topic, c -> new RawdataContentStreamConsumer(client.consumer(topic)));
+        return consumerMap.computeIfAbsent(topic, c -> new RawdataClientContentStreamConsumer(client.consumer(topic)));
     }
 
     @Override
