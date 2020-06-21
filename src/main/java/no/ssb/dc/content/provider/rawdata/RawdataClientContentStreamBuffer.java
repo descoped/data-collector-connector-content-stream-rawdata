@@ -26,6 +26,9 @@ public class RawdataClientContentStreamBuffer implements ContentStreamBuffer {
     }
 
     public static ContentStreamBuffer of(RawdataMessage message) {
+        if (message == null) {
+            return null;
+        }
         return new RawdataClientContentStreamBuffer(message.ulid(), message.position(), message.data(), new ArrayList<>());
     }
 
