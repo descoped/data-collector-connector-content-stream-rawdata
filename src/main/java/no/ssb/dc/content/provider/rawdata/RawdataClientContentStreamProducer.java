@@ -54,6 +54,9 @@ public class RawdataClientContentStreamProducer implements ContentStreamProducer
 
         RawdataMessage.Builder messageBuilder = producer.builder();
 
+        if (contentBuffer.ulid() != null) {
+            messageBuilder.ulid(contentBuffer.ulid());
+        }
         messageBuilder.position(contentBuffer.position());
 
         for (Map.Entry<String, byte[]> entry : contentBuffer.data().entrySet()) {
