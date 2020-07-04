@@ -2,6 +2,7 @@ package no.ssb.dc.content.provider.rawdata;
 
 import no.ssb.dc.api.content.ClosedContentStreamException;
 import no.ssb.dc.api.content.ContentStream;
+import no.ssb.dc.api.content.ContentStreamBuffer;
 import no.ssb.dc.api.content.ContentStreamConsumer;
 import no.ssb.dc.api.content.ContentStreamCursor;
 import no.ssb.dc.api.content.ContentStreamProducer;
@@ -37,6 +38,15 @@ public class RawdataClientContentStream implements ContentStream {
         }
         RawdataMessage message = client.lastMessage(topic);
         return message != null ? message.position() : null;
+    }
+
+    @Override
+    public ContentStreamBuffer lastMessage(String topic) {
+        if (isClosed()) {
+            throw new ClosedContentStreamException();
+        }
+        RawdataMessage message = client.lastMessage(topic);
+        return message != null ? RawdataClientContentStreamBuffer.of(message) : null;
     }
 
     @Override
