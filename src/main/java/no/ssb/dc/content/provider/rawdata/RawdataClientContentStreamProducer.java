@@ -36,6 +36,10 @@ public class RawdataClientContentStreamProducer implements ContentStreamProducer
 
     @Override
     public ContentStreamProducer copy(ContentStreamBuffer buffer) {
+        if (isClosed()) {
+            throw new ClosedContentStreamException();
+        }
+
         RawdataMessage.Builder messageBuilder = producer.builder();
 
         messageBuilder.ulid(buffer.ulid());
