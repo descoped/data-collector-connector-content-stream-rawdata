@@ -35,6 +35,22 @@ public class RawdataClientContentStreamProducer implements ContentStreamProducer
     }
 
     @Override
+    public ContentStreamProducer copy(ContentStreamBuffer buffer) {
+        RawdataMessage.Builder messageBuilder = producer.builder();
+
+        messageBuilder.ulid(buffer.ulid());
+        messageBuilder.position(buffer.position());
+
+        for (String key : buffer.keys()) {
+            messageBuilder.put(key, buffer.get(key));
+        }
+
+        producer.buffer(messageBuilder);
+
+        return this;
+    }
+
+    @Override
     public ContentStreamProducer produce(ContentStreamBuffer.Builder bufferBuilder) {
         if (isClosed()) {
             throw new ClosedContentStreamException();
@@ -48,7 +64,7 @@ public class RawdataClientContentStreamProducer implements ContentStreamProducer
             manifestJson = tryEncryptContent.apply(manifestJson);
         }
 
-        bufferBuilder.buffer("manifest.json", manifestJson, null);
+        bufferBuilder.buffer("manifest.json", manifestJson, null); // commit generated manifestList as json when Manifest(Entry) is null.
 
         ContentStreamBuffer contentBuffer = bufferBuilder.build();
 
@@ -59,6 +75,7 @@ public class RawdataClientContentStreamProducer implements ContentStreamProducer
         }
         messageBuilder.position(contentBuffer.position());
 
+        // content encryption has already been done in RawdataClientContentStore
         for (Map.Entry<String, byte[]> entry : contentBuffer.data().entrySet()) {
             messageBuilder.put(entry.getKey(), entry.getValue());
         }

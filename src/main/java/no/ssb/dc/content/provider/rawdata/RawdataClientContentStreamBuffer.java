@@ -95,6 +95,7 @@ public class RawdataClientContentStreamBuffer implements ContentStreamBuffer {
         @Override
         public Builder buffer(String contentKey, byte[] content, MetadataContent manifest) {
             data.put(contentKey, content);
+            // do not add manifest entry
             if (manifest != null) {
                 manifestList.add(manifest);
             }
