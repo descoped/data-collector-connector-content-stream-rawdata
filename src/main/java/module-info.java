@@ -7,6 +7,7 @@ module no.ssb.dc.content.rawdata {
     requires no.ssb.rawdata.api;
     requires no.ssb.dc.api;
     requires no.ssb.rawdata.encryption;
+    requires dapla.secrets.client.api;
 
     requires org.slf4j;
     requires de.huxhorn.sulky.ulid;

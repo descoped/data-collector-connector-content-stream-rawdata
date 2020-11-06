@@ -13,7 +13,6 @@ import no.ssb.rawdata.payload.encryption.EncryptionClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -37,15 +36,16 @@ public class RawdataClientContentStore implements ContentStore {
 
     public RawdataClientContentStore(RawdataClient client, final char[] encryptionKey, final byte[] encryptionSalt) {
         this.encryptionClient = new EncryptionClient();
+
         if (encryptionKey != null && encryptionKey.length > 0 && encryptionSalt != null && encryptionSalt.length > 0) {
             this.secretKey = encryptionClient.generateSecretKey(encryptionKey, encryptionSalt).getEncoded();
-            Arrays.fill(encryptionKey, (char) 0);
-            Arrays.fill(encryptionSalt, (byte) 0);
         } else {
             this.secretKey = null;
         }
+
         this.contentStream = new RawdataClientContentStream(client, this::tryEncryptContent);
         this.monitor = new HealthContentStreamMonitor(this::isClosed, this::activePositionCount, this::activeBufferCount);
+
     }
 
     private byte[] tryEncryptContent(byte[] content) {
