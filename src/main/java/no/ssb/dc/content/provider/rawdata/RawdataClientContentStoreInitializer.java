@@ -3,6 +3,7 @@ package no.ssb.dc.content.provider.rawdata;
 import no.ssb.dapla.secrets.api.SecretManagerClient;
 import no.ssb.dc.api.content.ContentStore;
 import no.ssb.dc.api.content.ContentStoreInitializer;
+import no.ssb.dc.api.security.BusinessSSLBundle;
 import no.ssb.rawdata.api.RawdataClient;
 import no.ssb.rawdata.api.RawdataClientInitializer;
 import no.ssb.service.provider.api.ProviderConfigurator;
@@ -10,7 +11,6 @@ import no.ssb.service.provider.api.ProviderName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -99,7 +99,7 @@ public class RawdataClientContentStoreInitializer implements ContentStoreInitial
                 String encryptionSaltSecretName = "google-secret-manager".equals(encryptionProvider) ? configuration.get("rawdata.encryption.salt") : "rawdata.encryption.salt";
 
                 encryptionKeySecretValue = secretManagerClient.readBytes(encryptionKeySecretName);
-                encryptionKeySecretValueChars = ByteBuffer.wrap(encryptionKeySecretValue).asCharBuffer().array();
+                encryptionKeySecretValueChars = BusinessSSLBundle.byteArrayToChars(encryptionKeySecretValue);
                 encryptionSaltSecretValue = secretManagerClient.readBytes(encryptionSaltSecretName);
 
                 RawdataClient client = ProviderConfigurator.configure(configuration, configuration.get("rawdata.client.provider"), RawdataClientInitializer.class);
