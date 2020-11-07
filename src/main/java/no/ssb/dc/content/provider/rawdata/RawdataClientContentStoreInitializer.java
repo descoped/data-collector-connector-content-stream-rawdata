@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static no.ssb.dc.api.security.ProvidedBusinessSSLResource.safeConvertBytesToCharArrayAsUTF8;
+import static no.ssb.dc.api.security.BusinessSSLResource.safeConvertBytesToCharArrayAsUTF8;
 
 @ProviderName("rawdata")
 public class RawdataClientContentStoreInitializer implements ContentStoreInitializer {
