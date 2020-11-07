@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static no.ssb.dc.api.security.BusinessSSLResource.safeConvertBytesToCharArrayAsUTF8;
+import static no.ssb.dapla.secrets.api.SecretManagerClient.safeCharArrayAsUTF8;
 
 @ProviderName("rawdata")
 public class RawdataClientContentStoreInitializer implements ContentStoreInitializer {
@@ -92,23 +92,20 @@ public class RawdataClientContentStoreInitializer implements ContentStoreInitial
 
         } else {
             LOG.debug("Load encryption credentials from: {}", encryptionProvider == null ? "application configuration" : encryptionProvider);
-            byte[] encryptionKeySecretValue = new byte[0];
-            char[] encryptionKeySecretValueChars = new char[0];
+            char[] encryptionKeySecretValue = new char[0];
             byte[] encryptionSaltSecretValue = new byte[0];
             try (SecretManagerClient secretManagerClient = SecretManagerClient.create(encryptionProviderMap)) {
                 String encryptionKeySecretName = "google-secret-manager".equals(encryptionProvider) ? configuration.get("rawdata.encryption.key") : "rawdata.encryption.key";
                 String encryptionSaltSecretName = "google-secret-manager".equals(encryptionProvider) ? configuration.get("rawdata.encryption.salt") : "rawdata.encryption.salt";
 
-                encryptionKeySecretValue = secretManagerClient.readBytes(encryptionKeySecretName);
-                encryptionKeySecretValueChars = safeConvertBytesToCharArrayAsUTF8(encryptionKeySecretValue);
+                encryptionKeySecretValue = safeCharArrayAsUTF8(secretManagerClient.readBytes(encryptionKeySecretName));
                 encryptionSaltSecretValue = secretManagerClient.readBytes(encryptionSaltSecretName);
 
                 RawdataClient client = ProviderConfigurator.configure(configuration, configuration.get("rawdata.client.provider"), RawdataClientInitializer.class);
-                return new RawdataClientContentStore(client, encryptionKeySecretValueChars, encryptionSaltSecretValue);
+                return new RawdataClientContentStore(client, encryptionKeySecretValue, encryptionSaltSecretValue);
 
             } finally {
-                Arrays.fill(encryptionKeySecretValue, (byte) 0);
-                Arrays.fill(encryptionKeySecretValueChars, (char) 0);
+                Arrays.fill(encryptionKeySecretValue, (char) 0);
                 Arrays.fill(encryptionSaltSecretValue, (byte) 0);
             }
         }
