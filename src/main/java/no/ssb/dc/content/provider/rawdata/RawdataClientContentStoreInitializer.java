@@ -92,36 +92,33 @@ public class RawdataClientContentStoreInitializer implements ContentStoreInitial
 
         } else {
             LOG.debug("Load encryption credentials from: {}", encryptionProvider == null ? "application configuration" : encryptionProvider);
-            char[] encryptionKeySecretValue = new char[0];
-            byte[] encryptionSaltSecretValue = new byte[0];
+            char[] encryptionKeySecretValue = null;
+            byte[] encryptionSaltSecretValue = null;
             try (SecretManagerClient secretManagerClient = SecretManagerClient.create(encryptionProviderMap)) {
-                if ("google-secret-manager".equals(encryptionProvider)) {
-                    LOG.debug("Has: rawdata.encryption.key='{}'", configuration.containsKey("rawdata.encryption.key"));
-                    LOG.debug("Has: rawdata.encryption.salt='{}'", configuration.containsKey("rawdata.encryption.salt"));
+                // Set in RecoveryContentStoreComponent
+                boolean ignoreRawdataEncryptionCredentialsDuringRecovery = Boolean.parseBoolean(configuration.get("recovery.rawdata.encryption.credentials.ignore"));
+                if (ignoreRawdataEncryptionCredentialsDuringRecovery) {
+                    RawdataClient client = ProviderConfigurator.configure(configuration, configuration.get("rawdata.client.provider"), RawdataClientInitializer.class);
+                    return new RawdataClientContentStore(client, null, null);
                 }
 
-                String encryptionKeySecretName = configuration.containsKey("rawdata.encryption.key") && "google-secret-manager".equals(encryptionProvider) ?
+                String encryptionKeySecretName = "google-secret-manager".equals(encryptionProvider) ?
                         Optional.ofNullable(configuration.get("rawdata.encryption.key")).orElseThrow() :
                         "rawdata.encryption.key";
 
-                String encryptionSaltSecretName = configuration.containsKey("rawdata.encryption.salt") && "google-secret-manager".equals(encryptionProvider) ?
+                String encryptionSaltSecretName = "google-secret-manager".equals(encryptionProvider) ?
                         Optional.ofNullable(configuration.get("rawdata.encryption.salt")).orElseThrow() :
                         "rawdata.encryption.salt";
 
-                if ("google-secret-manager".equals(encryptionProvider)) {
-                    LOG.debug("rawdata.encryption.key='{}'", encryptionKeySecretName);
-                    LOG.debug("rawdata.encryption.salt='{}'", encryptionSaltSecretName);
-                }
-
-                encryptionKeySecretValue = configuration.containsKey("rawdata.encryption.key") ? safeCharArrayAsUTF8(secretManagerClient.readBytes(encryptionKeySecretName)) : new char[0];
-                encryptionSaltSecretValue = configuration.containsKey("rawdata.encryption.salt") ? secretManagerClient.readBytes(encryptionSaltSecretName) : new byte[0];
+                encryptionKeySecretValue = safeCharArrayAsUTF8(secretManagerClient.readBytes(encryptionKeySecretName));
+                encryptionSaltSecretValue = secretManagerClient.readBytes(encryptionSaltSecretName);
 
                 RawdataClient client = ProviderConfigurator.configure(configuration, configuration.get("rawdata.client.provider"), RawdataClientInitializer.class);
                 return new RawdataClientContentStore(client, encryptionKeySecretValue, encryptionSaltSecretValue);
 
             } finally {
-                Arrays.fill(encryptionKeySecretValue, (char) 0);
-                Arrays.fill(encryptionSaltSecretValue, (byte) 0);
+                if (encryptionKeySecretValue != null) Arrays.fill(encryptionKeySecretValue, (char) 0);
+                if (encryptionSaltSecretValue != null) Arrays.fill(encryptionSaltSecretValue, (byte) 0);
             }
         }
     }
