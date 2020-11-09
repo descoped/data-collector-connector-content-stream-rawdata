@@ -113,8 +113,8 @@ public class RawdataClientContentStoreInitializer implements ContentStoreInitial
                     LOG.debug("rawdata.encryption.salt='{}'", encryptionSaltSecretName);
                 }
 
-                encryptionKeySecretValue = configuration.containsKey("rawdata.encryption.key") ? safeCharArrayAsUTF8(secretManagerClient.readBytes(encryptionKeySecretName)) : null;
-                encryptionSaltSecretValue = configuration.containsKey("rawdata.encryption.salt") ? secretManagerClient.readBytes(encryptionSaltSecretName) : null;
+                encryptionKeySecretValue = configuration.containsKey("rawdata.encryption.key") ? safeCharArrayAsUTF8(secretManagerClient.readBytes(encryptionKeySecretName)) : new char[0];
+                encryptionSaltSecretValue = configuration.containsKey("rawdata.encryption.salt") ? secretManagerClient.readBytes(encryptionSaltSecretName) : new byte[0];
 
                 RawdataClient client = ProviderConfigurator.configure(configuration, configuration.get("rawdata.client.provider"), RawdataClientInitializer.class);
                 return new RawdataClientContentStore(client, encryptionKeySecretValue, encryptionSaltSecretValue);
