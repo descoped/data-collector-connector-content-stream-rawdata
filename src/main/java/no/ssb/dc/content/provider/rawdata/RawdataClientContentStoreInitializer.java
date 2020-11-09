@@ -95,11 +95,22 @@ public class RawdataClientContentStoreInitializer implements ContentStoreInitial
             char[] encryptionKeySecretValue = new char[0];
             byte[] encryptionSaltSecretValue = new byte[0];
             try (SecretManagerClient secretManagerClient = SecretManagerClient.create(encryptionProviderMap)) {
-                String encryptionKeySecretName = "google-secret-manager".equals(encryptionProvider) ? configuration.get("rawdata.encryption.key") : "rawdata.encryption.key";
-                String encryptionSaltSecretName = "google-secret-manager".equals(encryptionProvider) ? configuration.get("rawdata.encryption.salt") : "rawdata.encryption.salt";
+                if ("google-secret-manager".equals(encryptionProvider)) {
+                    LOG.debug("Has: rawdata.encryption.key='{}'", configuration.containsKey("rawdata.encryption.key"));
+                    LOG.debug("Has: rawdata.encryption.salt='{}'", configuration.containsKey("rawdata.encryption.salt"));
+                }
+
+                String encryptionKeySecretName = "google-secret-manager".equals(encryptionProvider) ? Optional.ofNullable(configuration.get("rawdata.encryption.key")).orElseThrow() : "rawdata.encryption.key";
+                String encryptionSaltSecretName = "google-secret-manager".equals(encryptionProvider) ? Optional.ofNullable(configuration.get("rawdata.encryption.salt")).orElseThrow() : "rawdata.encryption.salt";
+
+                if ("google-secret-manager".equals(encryptionProvider)) {
+                    LOG.debug("rawdata.encryption.key='{}'", encryptionKeySecretName);
+                    LOG.debug("rawdata.encryption.salt='{}'", encryptionSaltSecretName);
+                }
 
                 encryptionKeySecretValue = safeCharArrayAsUTF8(secretManagerClient.readBytes(encryptionKeySecretName));
                 encryptionSaltSecretValue = secretManagerClient.readBytes(encryptionSaltSecretName);
+
 
                 RawdataClient client = ProviderConfigurator.configure(configuration, configuration.get("rawdata.client.provider"), RawdataClientInitializer.class);
                 return new RawdataClientContentStore(client, encryptionKeySecretValue, encryptionSaltSecretValue);
