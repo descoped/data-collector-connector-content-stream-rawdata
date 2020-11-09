@@ -91,17 +91,17 @@ public class RawdataClientContentStoreInitializer implements ContentStoreInitial
             return new RawdataClientContentStore(client, null, null);
 
         } else {
+            // Set in RecoveryContentStoreComponent
+            boolean ignoreRawdataEncryptionCredentialsDuringRecovery = Boolean.parseBoolean(configuration.get("recovery.rawdata.encryption.credentials.ignore"));
+            if (ignoreRawdataEncryptionCredentialsDuringRecovery) {
+                RawdataClient client = ProviderConfigurator.configure(configuration, configuration.get("rawdata.client.provider"), RawdataClientInitializer.class);
+                return new RawdataClientContentStore(client, null, null);
+            }
+
             LOG.debug("Load encryption credentials from: {}", encryptionProvider == null ? "application configuration" : encryptionProvider);
             char[] encryptionKeySecretValue = null;
             byte[] encryptionSaltSecretValue = null;
             try (SecretManagerClient secretManagerClient = SecretManagerClient.create(encryptionProviderMap)) {
-                // Set in RecoveryContentStoreComponent
-                boolean ignoreRawdataEncryptionCredentialsDuringRecovery = Boolean.parseBoolean(configuration.get("recovery.rawdata.encryption.credentials.ignore"));
-                if (ignoreRawdataEncryptionCredentialsDuringRecovery) {
-                    RawdataClient client = ProviderConfigurator.configure(configuration, configuration.get("rawdata.client.provider"), RawdataClientInitializer.class);
-                    return new RawdataClientContentStore(client, null, null);
-                }
-
                 String encryptionKeySecretName = "google-secret-manager".equals(encryptionProvider) ?
                         Optional.ofNullable(configuration.get("rawdata.encryption.key")).orElseThrow() :
                         "rawdata.encryption.key";
