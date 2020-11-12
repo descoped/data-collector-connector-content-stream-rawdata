@@ -117,7 +117,7 @@ public class RawdataClientContentStoreInitializer implements ContentStoreInitial
                 return new RawdataClientContentStore(client, encryptionKeySecretValue, encryptionSaltSecretValue);
 
             } finally {
-                if (encryptionKeySecretValue != null) Arrays.fill(encryptionKeySecretValue, (char) 0);
+                if (encryptionKeySecretValue != null) Arrays.fill(encryptionKeySecretValue, '\u0000');
                 if (encryptionSaltSecretValue != null) Arrays.fill(encryptionSaltSecretValue, (byte) 0);
             }
         }
