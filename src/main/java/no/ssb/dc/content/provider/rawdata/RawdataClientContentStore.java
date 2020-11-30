@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -97,7 +98,7 @@ public class RawdataClientContentStore implements ContentStore {
 
         bufferBuilder.position(position);
 
-        MetadataContent manifest = getMetadataContent(paginationDocumentTopic, position, contentKey, content, MetadataContent.ResourceType.PAGE, httpRequestInfo);
+        MetadataContent manifest = getMetadataContent(paginationDocumentTopic, position, contentKey, content, MetadataContent.ResourceType.PAGE, httpRequestInfo, new LinkedHashMap<>());
 
         content = tryEncryptContent(content);
 
@@ -112,11 +113,11 @@ public class RawdataClientContentStore implements ContentStore {
     }
 
     @Override
-    public void bufferPaginationEntryDocument(String topic, String position, String contentKey, byte[] content, HttpRequestInfo httpRequestInfo) {
+    public void bufferPaginationEntryDocument(String topic, String position, String contentKey, byte[] content, HttpRequestInfo httpRequestInfo, Map<String, Object> state) {
         long past = System.currentTimeMillis();
         ContentStreamProducer producer = contentStream.producer(topic);
         ContentStreamBuffer.Builder bufferBuilder = contentBuffers.computeIfAbsent(new ContentStateKey(topic, position), contentBuilder -> producer.builder());
-        MetadataContent manifest = getMetadataContent(topic, position, contentKey, content, MetadataContent.ResourceType.ENTRY, httpRequestInfo);
+        MetadataContent manifest = getMetadataContent(topic, position, contentKey, content, MetadataContent.ResourceType.ENTRY, httpRequestInfo, state);
 
         content = tryEncryptContent(content);
 
@@ -132,7 +133,7 @@ public class RawdataClientContentStore implements ContentStore {
         long past = System.currentTimeMillis();
         ContentStreamProducer producer = contentStream.producer(topic);
         ContentStreamBuffer.Builder bufferBuilder = contentBuffers.computeIfAbsent(new ContentStateKey(topic, position), contentBuilder -> producer.builder());
-        MetadataContent manifest = getMetadataContent(topic, position, contentKey, content, MetadataContent.ResourceType.DOCUMENT, httpRequestInfo);
+        MetadataContent manifest = getMetadataContent(topic, position, contentKey, content, MetadataContent.ResourceType.DOCUMENT, httpRequestInfo, new LinkedHashMap<>());
 
         content = tryEncryptContent(content);
 
@@ -168,7 +169,7 @@ public class RawdataClientContentStore implements ContentStore {
         return monitor;
     }
 
-    MetadataContent getMetadataContent(String topic, String position, String contentKey, byte[] content, MetadataContent.ResourceType resourceType, HttpRequestInfo httpRequestInfo) {
+    MetadataContent getMetadataContent(String topic, String position, String contentKey, byte[] content, MetadataContent.ResourceType resourceType, HttpRequestInfo httpRequestInfo, Map<String, Object> state) {
         return new MetadataContent.Builder()
                 .resourceType(resourceType)
                 .correlationId(httpRequestInfo.getCorrelationIds())
@@ -182,7 +183,7 @@ public class RawdataClientContentStore implements ContentStore {
                 .requestDurationNanoTime(httpRequestInfo.getRequestDurationNanoSeconds())
                 .requestHeaders(httpRequestInfo.getRequestHeaders())
                 .responseHeaders(httpRequestInfo.getResponseHeaders())
-                .state(httpRequestInfo.getState())
+                .state(state)
                 .build();
     }
 
