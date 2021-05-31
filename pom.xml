@@ -4,7 +4,7 @@
 
     <groupId>no.ssb.dc</groupId>
     <artifactId>data-collector-connector-content-stream-rawdata</artifactId>
-    <version>0.1</version>
+    <version>0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Data Collector Connector Content Stream Rawdata</name>
@@ -48,7 +48,7 @@
     <scm>
         <connection>scm:git:git://github.com/statisticsnorway/data-collector-connector-content-stream-rawdata.git</connection>
         <developerConnection>scm:git:git@github.com:statisticsnorway/data-collector-connector-content-stream-rawdata.git</developerConnection>
-        <tag>0.1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
