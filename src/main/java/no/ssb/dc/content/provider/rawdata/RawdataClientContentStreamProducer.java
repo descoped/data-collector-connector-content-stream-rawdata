@@ -40,7 +40,7 @@ public class RawdataClientContentStreamProducer implements ContentStreamProducer
             throw new ClosedContentStreamException();
         }
 
-        RawdataMessage.Builder messageBuilder = producer.builder();
+        RawdataMessage.Builder messageBuilder = RawdataMessage.builder();
 
         messageBuilder.ulid(buffer.ulid());
         messageBuilder.position(buffer.position());
@@ -49,7 +49,7 @@ public class RawdataClientContentStreamProducer implements ContentStreamProducer
             messageBuilder.put(key, buffer.get(key));
         }
 
-        producer.buffer(messageBuilder);
+        producer.publish(messageBuilder.build());
 
         return this;
     }
@@ -72,7 +72,7 @@ public class RawdataClientContentStreamProducer implements ContentStreamProducer
 
         ContentStreamBuffer contentBuffer = bufferBuilder.build();
 
-        RawdataMessage.Builder messageBuilder = producer.builder();
+        RawdataMessage.Builder messageBuilder = RawdataMessage.builder();
 
         if (contentBuffer.ulid() != null) {
             messageBuilder.ulid(contentBuffer.ulid());
@@ -84,17 +84,18 @@ public class RawdataClientContentStreamProducer implements ContentStreamProducer
             messageBuilder.put(entry.getKey(), entry.getValue());
         }
 
-        producer.buffer(messageBuilder);
+        producer.publish(messageBuilder.build());
 
         return this;
     }
 
+    @Deprecated
     @Override
     public void publish(String... position) {
         if (isClosed()) {
             throw new ClosedContentStreamException();
         }
-        producer.publish(position);
+//        producer.publish(position);
     }
 
     public boolean isClosed() {
