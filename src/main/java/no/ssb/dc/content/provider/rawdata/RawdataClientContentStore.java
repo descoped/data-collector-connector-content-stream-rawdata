@@ -1,5 +1,7 @@
 package no.ssb.dc.content.provider.rawdata;
 
+import io.descoped.encryption.client.Algorithm;
+import io.descoped.encryption.client.EncryptionClient;
 import no.ssb.dc.api.content.ContentStateKey;
 import no.ssb.dc.api.content.ContentStore;
 import no.ssb.dc.api.content.ContentStream;
@@ -9,7 +11,6 @@ import no.ssb.dc.api.content.HealthContentStreamMonitor;
 import no.ssb.dc.api.content.HttpRequestInfo;
 import no.ssb.dc.api.content.MetadataContent;
 import no.ssb.rawdata.api.RawdataClient;
-import no.ssb.rawdata.payload.encryption.EncryptionClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,7 @@ public class RawdataClientContentStore implements ContentStore {
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     public RawdataClientContentStore(RawdataClient client, final char[] encryptionKey, final byte[] encryptionSalt) {
-        this.encryptionClient = new EncryptionClient();
+        this.encryptionClient = new EncryptionClient(Algorithm.AES256);
 
         if (encryptionKey != null && encryptionKey.length > 0 && encryptionSalt != null && encryptionSalt.length > 0) {
             this.secretKey = encryptionClient.generateSecretKey(encryptionKey, encryptionSalt).getEncoded();

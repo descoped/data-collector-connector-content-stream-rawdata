@@ -1,5 +1,7 @@
 package no.ssb.dc.content.provider.rawdata;
 
+import io.descoped.encryption.client.Algorithm;
+import io.descoped.encryption.client.EncryptionClient;
 import no.ssb.dc.api.CorrelationIds;
 import no.ssb.dc.api.content.ContentStore;
 import no.ssb.dc.api.content.ContentStoreInitializer;
@@ -12,7 +14,6 @@ import no.ssb.dc.api.context.ExecutionContext;
 import no.ssb.dc.api.http.Headers;
 import no.ssb.rawdata.api.RawdataClient;
 import no.ssb.rawdata.api.RawdataClientInitializer;
-import no.ssb.rawdata.payload.encryption.EncryptionClient;
 import no.ssb.service.provider.api.ProviderConfigurator;
 import org.junit.jupiter.api.Test;
 
@@ -28,9 +29,9 @@ public class ContentStreamTest {
     @Test
     public void thatContentStoreInitializer() {
         ContentStore contentStore = ProviderConfigurator.configure(Map.of(
-                "rawdata.client.provider", "memory",
-                "rawdata.encryption.key", "password",
-                "rawdata.encryption.salt", "salt"),
+                        "rawdata.client.provider", "memory",
+                        "rawdata.encryption.key", "password",
+                        "rawdata.encryption.salt", "salt"),
                 "rawdata",
                 ContentStoreInitializer.class
         );
@@ -44,7 +45,7 @@ public class ContentStreamTest {
     @Test
     public void thatRawdataClientProducesContent() {
         RawdataClient client = ProviderConfigurator.configure(Map.of(), "memory", RawdataClientInitializer.class);
-        EncryptionClient encryptionClient = new EncryptionClient();
+        EncryptionClient encryptionClient = new EncryptionClient(Algorithm.AES256);
         ContentStream contentStream = new RawdataClientContentStream(client);
         ContentStreamProducer producer = contentStream.producer("ns");
 

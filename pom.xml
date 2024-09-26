@@ -65,9 +65,9 @@
         </dependency>
 
         <dependency>
-            <groupId>no.ssb.rawdata</groupId>
-            <artifactId>rawdata-crypto-util</artifactId>
-            <version>0.2-SNAPSHOT</version>
+            <groupId>io.descoped.encryption</groupId>
+            <artifactId>encryption-util</artifactId>
+            <version>0.3-SNAPSHOT</version>
         </dependency>
 
         <dependency>

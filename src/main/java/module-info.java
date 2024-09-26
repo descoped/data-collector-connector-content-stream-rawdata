@@ -1,12 +1,11 @@
 import no.ssb.dc.api.content.ContentStoreInitializer;
-import no.ssb.dc.content.provider.rawdata.RawdataClientContentStoreInitializer;
 
 module no.ssb.dc.content.rawdata {
 
     requires no.ssb.service.provider.api;
     requires no.ssb.rawdata.api;
     requires no.ssb.dc.api;
-    requires no.ssb.rawdata.encryption;
+    requires io.descoped.encryption.util;
     requires dapla.secrets.client.api;
 
     requires org.slf4j;
