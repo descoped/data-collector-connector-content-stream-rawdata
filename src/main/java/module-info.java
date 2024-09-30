@@ -13,7 +13,7 @@ module no.ssb.dc.content.rawdata {
     requires com.fasterxml.jackson.databind;
     requires com.fasterxml.jackson.annotation;
 
-    provides ContentStoreInitializer with RawdataClientContentStoreInitializer;
+    provides ContentStoreInitializer with no.ssb.dc.content.provider.rawdata.RawdataClientContentStoreInitializer;
 
     exports no.ssb.dc.content.provider.rawdata;
 }

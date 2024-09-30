@@ -52,8 +52,7 @@ public class RawdataClientContentStore implements ContentStore {
 
     private byte[] tryEncryptContent(byte[] content) {
         if (secretKey != null) {
-            byte[] iv = encryptionClient.generateIV();
-            return encryptionClient.encrypt(secretKey, iv, content);
+            return encryptionClient.encrypt(secretKey, content);
         }
         return content;
     }
