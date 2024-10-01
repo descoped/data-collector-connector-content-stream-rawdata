@@ -1,12 +1,12 @@
-package no.ssb.dc.content.provider.rawdata;
+package io.descoped.dc.content.provider.rawdata;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import no.ssb.dc.api.content.ClosedContentStreamException;
-import no.ssb.dc.api.content.ContentStreamBuffer;
-import no.ssb.dc.api.content.ContentStreamProducer;
-import no.ssb.dc.api.util.JsonParser;
-import no.ssb.rawdata.api.RawdataMessage;
-import no.ssb.rawdata.api.RawdataProducer;
+import io.descoped.dc.api.content.ClosedContentStreamException;
+import io.descoped.dc.api.content.ContentStreamBuffer;
+import io.descoped.dc.api.content.ContentStreamProducer;
+import io.descoped.dc.api.util.JsonParser;
+import io.descoped.rawdata.api.RawdataMessage;
+import io.descoped.rawdata.api.RawdataProducer;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;

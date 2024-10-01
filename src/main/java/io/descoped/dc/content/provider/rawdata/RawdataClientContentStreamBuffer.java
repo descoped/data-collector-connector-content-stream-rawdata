@@ -1,9 +1,9 @@
-package no.ssb.dc.content.provider.rawdata;
+package io.descoped.dc.content.provider.rawdata;
 
 import de.huxhorn.sulky.ulid.ULID;
-import no.ssb.dc.api.content.ContentStreamBuffer;
-import no.ssb.dc.api.content.MetadataContent;
-import no.ssb.rawdata.api.RawdataMessage;
+import io.descoped.dc.api.content.ContentStreamBuffer;
+import io.descoped.dc.api.content.MetadataContent;
+import io.descoped.rawdata.api.RawdataMessage;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

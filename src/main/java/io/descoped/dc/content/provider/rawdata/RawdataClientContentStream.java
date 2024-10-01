@@ -1,13 +1,13 @@
-package no.ssb.dc.content.provider.rawdata;
+package io.descoped.dc.content.provider.rawdata;
 
-import no.ssb.dc.api.content.ClosedContentStreamException;
-import no.ssb.dc.api.content.ContentStream;
-import no.ssb.dc.api.content.ContentStreamBuffer;
-import no.ssb.dc.api.content.ContentStreamConsumer;
-import no.ssb.dc.api.content.ContentStreamCursor;
-import no.ssb.dc.api.content.ContentStreamProducer;
-import no.ssb.rawdata.api.RawdataClient;
-import no.ssb.rawdata.api.RawdataMessage;
+import io.descoped.dc.api.content.ClosedContentStreamException;
+import io.descoped.dc.api.content.ContentStream;
+import io.descoped.dc.api.content.ContentStreamBuffer;
+import io.descoped.dc.api.content.ContentStreamConsumer;
+import io.descoped.dc.api.content.ContentStreamCursor;
+import io.descoped.dc.api.content.ContentStreamProducer;
+import io.descoped.rawdata.api.RawdataClient;
+import io.descoped.rawdata.api.RawdataMessage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

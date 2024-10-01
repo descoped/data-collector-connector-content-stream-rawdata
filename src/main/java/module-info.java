@@ -1,19 +1,19 @@
-import no.ssb.dc.api.content.ContentStoreInitializer;
+import io.descoped.dc.api.content.ContentStoreInitializer;
 
-module no.ssb.dc.content.rawdata {
+module io.descoped.dc.content.rawdata {
 
-    requires no.ssb.service.provider.api;
-    requires no.ssb.rawdata.api;
-    requires no.ssb.dc.api;
+    requires io.descoped.service.provider.api;
+    requires io.descoped.rawdata.api;
+    requires io.descoped.dc.api;
     requires io.descoped.encryption.util;
-    requires dapla.secrets.client.api;
+    requires secrets.client.api;
 
     requires org.slf4j;
     requires de.huxhorn.sulky.ulid;
     requires com.fasterxml.jackson.databind;
     requires com.fasterxml.jackson.annotation;
 
-    provides ContentStoreInitializer with no.ssb.dc.content.provider.rawdata.RawdataClientContentStoreInitializer;
+    provides ContentStoreInitializer with io.descoped.dc.content.provider.rawdata.RawdataClientContentStoreInitializer;
 
-    exports no.ssb.dc.content.provider.rawdata;
+    exports io.descoped.dc.content.provider.rawdata;
 }

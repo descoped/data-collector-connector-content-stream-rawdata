@@ -1,9 +1,9 @@
-package no.ssb.dc.content.provider.rawdata;
+package io.descoped.dc.content.provider.rawdata;
 
-import no.ssb.dc.api.content.ClosedContentStreamException;
-import no.ssb.dc.api.content.ContentStreamBuffer;
-import no.ssb.dc.api.content.ContentStreamConsumer;
-import no.ssb.rawdata.api.RawdataConsumer;
+import io.descoped.dc.api.content.ClosedContentStreamException;
+import io.descoped.dc.api.content.ContentStreamBuffer;
+import io.descoped.dc.api.content.ContentStreamConsumer;
+import io.descoped.rawdata.api.RawdataConsumer;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;

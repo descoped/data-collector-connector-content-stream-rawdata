@@ -1,16 +1,16 @@
-package no.ssb.dc.content.provider.rawdata;
+package io.descoped.dc.content.provider.rawdata;
 
+import io.descoped.dc.api.content.ContentStateKey;
+import io.descoped.dc.api.content.ContentStore;
+import io.descoped.dc.api.content.ContentStream;
+import io.descoped.dc.api.content.ContentStreamBuffer;
+import io.descoped.dc.api.content.ContentStreamProducer;
+import io.descoped.dc.api.content.HealthContentStreamMonitor;
+import io.descoped.dc.api.content.HttpRequestInfo;
+import io.descoped.dc.api.content.MetadataContent;
 import io.descoped.encryption.client.Algorithm;
 import io.descoped.encryption.client.EncryptionClient;
-import no.ssb.dc.api.content.ContentStateKey;
-import no.ssb.dc.api.content.ContentStore;
-import no.ssb.dc.api.content.ContentStream;
-import no.ssb.dc.api.content.ContentStreamBuffer;
-import no.ssb.dc.api.content.ContentStreamProducer;
-import no.ssb.dc.api.content.HealthContentStreamMonitor;
-import no.ssb.dc.api.content.HttpRequestInfo;
-import no.ssb.dc.api.content.MetadataContent;
-import no.ssb.rawdata.api.RawdataClient;
+import io.descoped.rawdata.api.RawdataClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

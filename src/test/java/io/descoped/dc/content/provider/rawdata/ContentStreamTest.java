@@ -1,20 +1,20 @@
-package no.ssb.dc.content.provider.rawdata;
+package io.descoped.dc.content.provider.rawdata;
 
+import io.descoped.dc.api.CorrelationIds;
+import io.descoped.dc.api.content.ContentStore;
+import io.descoped.dc.api.content.ContentStoreInitializer;
+import io.descoped.dc.api.content.ContentStream;
+import io.descoped.dc.api.content.ContentStreamBuffer;
+import io.descoped.dc.api.content.ContentStreamConsumer;
+import io.descoped.dc.api.content.ContentStreamProducer;
+import io.descoped.dc.api.content.HttpRequestInfo;
+import io.descoped.dc.api.context.ExecutionContext;
+import io.descoped.dc.api.http.Headers;
 import io.descoped.encryption.client.Algorithm;
 import io.descoped.encryption.client.EncryptionClient;
-import no.ssb.dc.api.CorrelationIds;
-import no.ssb.dc.api.content.ContentStore;
-import no.ssb.dc.api.content.ContentStoreInitializer;
-import no.ssb.dc.api.content.ContentStream;
-import no.ssb.dc.api.content.ContentStreamBuffer;
-import no.ssb.dc.api.content.ContentStreamConsumer;
-import no.ssb.dc.api.content.ContentStreamProducer;
-import no.ssb.dc.api.content.HttpRequestInfo;
-import no.ssb.dc.api.context.ExecutionContext;
-import no.ssb.dc.api.http.Headers;
-import no.ssb.rawdata.api.RawdataClient;
-import no.ssb.rawdata.api.RawdataClientInitializer;
-import no.ssb.service.provider.api.ProviderConfigurator;
+import io.descoped.rawdata.api.RawdataClient;
+import io.descoped.rawdata.api.RawdataClientInitializer;
+import io.descoped.service.provider.api.ProviderConfigurator;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;

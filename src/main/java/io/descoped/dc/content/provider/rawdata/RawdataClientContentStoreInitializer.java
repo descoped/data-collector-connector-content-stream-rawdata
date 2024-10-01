@@ -1,12 +1,12 @@
-package no.ssb.dc.content.provider.rawdata;
+package io.descoped.dc.content.provider.rawdata;
 
-import no.ssb.dapla.secrets.api.SecretManagerClient;
-import no.ssb.dc.api.content.ContentStore;
-import no.ssb.dc.api.content.ContentStoreInitializer;
-import no.ssb.rawdata.api.RawdataClient;
-import no.ssb.rawdata.api.RawdataClientInitializer;
-import no.ssb.service.provider.api.ProviderConfigurator;
-import no.ssb.service.provider.api.ProviderName;
+import io.descoped.dc.api.content.ContentStore;
+import io.descoped.dc.api.content.ContentStoreInitializer;
+import io.descoped.rawdata.api.RawdataClient;
+import io.descoped.rawdata.api.RawdataClientInitializer;
+import io.descoped.secrets.api.SecretManagerClient;
+import io.descoped.service.provider.api.ProviderConfigurator;
+import io.descoped.service.provider.api.ProviderName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static no.ssb.dapla.secrets.api.SecretManagerClient.safeCharArrayAsUTF8;
+import static io.descoped.secrets.api.SecretManagerClient.safeCharArrayAsUTF8;
 
 @ProviderName("rawdata")
 public class RawdataClientContentStoreInitializer implements ContentStoreInitializer {
@@ -68,7 +68,7 @@ public class RawdataClientContentStoreInitializer implements ContentStoreInitial
                 encryptionProviderMap.put("secrets.propertyResourcePath", gcpServiceAccountKeyPath);
             }
 
-        // get encryption keys from google secret manager
+            // get encryption keys from google secret manager
         } else if ("google-secret-manager".equals(encryptionProvider)) {
             LOG.info("Use Google Secret Manager for encryption credentials");
             encryptionProviderMap.put("secrets.provider", encryptionProvider);
@@ -79,7 +79,7 @@ public class RawdataClientContentStoreInitializer implements ContentStoreInitial
                 encryptionProviderMap.put("secrets.serviceAccountKeyPath", gcpServiceAccountFile);
             }
 
-        // fallback: load encryption keys from current configuration
+            // fallback: load encryption keys from current configuration
         } else if (configuration.containsKey("rawdata.encryption.key") && configuration.containsKey("rawdata.encryption.salt")) {
             LOG.info("Fallback application configuration for encryption credentials");
             encryptionProviderMap.putAll(configuration);
