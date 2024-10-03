@@ -6,7 +6,7 @@ module io.descoped.dc.content.rawdata {
     requires io.descoped.rawdata.api;
     requires io.descoped.dc.api;
     requires io.descoped.encryption.util;
-    requires secrets.client.api;
+    requires io.descoped.secrets.client.api;
 
     requires org.slf4j;
     requires de.huxhorn.sulky.ulid;
