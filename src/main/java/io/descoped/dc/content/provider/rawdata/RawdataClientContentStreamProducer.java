@@ -8,7 +8,10 @@ import io.descoped.dc.api.util.JsonParser;
 import io.descoped.rawdata.api.RawdataMessage;
 import io.descoped.rawdata.api.RawdataProducer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -19,11 +22,13 @@ public class RawdataClientContentStreamProducer implements ContentStreamProducer
     private final Consumer<String> closeAndRemoveProducer;
     private final Function<byte[], byte[]> tryEncryptContent;
     private final AtomicBoolean closed = new AtomicBoolean(false);
+    private final Map<String, List<RawdataMessage>> bufferMap;
 
     public RawdataClientContentStreamProducer(RawdataProducer producer, Consumer<String> closeAndRemoveProducer, Function<byte[], byte[]> tryEncryptContent) {
         this.producer = producer;
         this.closeAndRemoveProducer = closeAndRemoveProducer;
         this.tryEncryptContent = tryEncryptContent;
+        this.bufferMap = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -40,16 +45,8 @@ public class RawdataClientContentStreamProducer implements ContentStreamProducer
             throw new ClosedContentStreamException();
         }
 
-        RawdataMessage.Builder messageBuilder = RawdataMessage.builder();
-
-        messageBuilder.ulid(buffer.ulid());
-        messageBuilder.position(buffer.position());
-
-        for (String key : buffer.keys()) {
-            messageBuilder.put(key, buffer.get(key));
-        }
-
-        producer.publish(messageBuilder.build());
+        RawdataMessage message = createRawdataMessage(buffer);
+        bufferMessage(message);
 
         return this;
     }
@@ -59,6 +56,34 @@ public class RawdataClientContentStreamProducer implements ContentStreamProducer
         if (isClosed()) {
             throw new ClosedContentStreamException();
         }
+
+        ContentStreamBuffer contentBuffer = prepareContentBuffer(bufferBuilder);
+        RawdataMessage message = createRawdataMessage(contentBuffer);
+        bufferMessage(message);
+
+        return this;
+    }
+
+    @Override
+    public void publish(String... positions) throws ClosedContentStreamException {
+        if (isClosed()) {
+            throw new ClosedContentStreamException();
+        }
+
+        List<RawdataMessage> messages = new ArrayList<>();
+        for (String position : positions) {
+            List<RawdataMessage> bufferedMessages = bufferMap.remove(position);
+            if (bufferedMessages != null) {
+                messages.addAll(bufferedMessages);
+            }
+        }
+
+        if (!messages.isEmpty()) {
+            producer.publish(messages.toArray(new RawdataMessage[0]));
+        }
+    }
+
+    private ContentStreamBuffer prepareContentBuffer(ContentStreamBuffer.Builder bufferBuilder) {
         JsonParser jsonParser = JsonParser.createJsonParser();
         ArrayNode arrayNode = jsonParser.createArrayNode();
         bufferBuilder.manifest().forEach(metadataContent -> arrayNode.add(metadataContent.getElementNode()));
@@ -68,34 +93,28 @@ public class RawdataClientContentStreamProducer implements ContentStreamProducer
             manifestJson = tryEncryptContent.apply(manifestJson);
         }
 
-        bufferBuilder.buffer("manifest.json", manifestJson, null); // commit generated manifestList as json when Manifest(Entry) is null.
+        bufferBuilder.buffer("manifest.json", manifestJson, null);
 
-        ContentStreamBuffer contentBuffer = bufferBuilder.build();
+        return bufferBuilder.build();
+    }
 
+    private RawdataMessage createRawdataMessage(ContentStreamBuffer buffer) {
         RawdataMessage.Builder messageBuilder = RawdataMessage.builder();
 
-        if (contentBuffer.ulid() != null) {
-            messageBuilder.ulid(contentBuffer.ulid());
+        if (buffer.ulid() != null) {
+            messageBuilder.ulid(buffer.ulid());
         }
-        messageBuilder.position(contentBuffer.position());
+        messageBuilder.position(buffer.position());
 
-        // content encryption has already been done in RawdataClientContentStore
-        for (Map.Entry<String, byte[]> entry : contentBuffer.data().entrySet()) {
+        for (Map.Entry<String, byte[]> entry : buffer.data().entrySet()) {
             messageBuilder.put(entry.getKey(), entry.getValue());
         }
 
-        producer.publish(messageBuilder.build());
-
-        return this;
+        return messageBuilder.build();
     }
 
-    @Deprecated
-    @Override
-    public void publish(String... position) {
-        if (isClosed()) {
-            throw new ClosedContentStreamException();
-        }
-//        producer.publish(position);
+    private void bufferMessage(RawdataMessage message) {
+        bufferMap.computeIfAbsent(message.position(), k -> new ArrayList<>()).add(message);
     }
 
     public boolean isClosed() {
@@ -105,9 +124,27 @@ public class RawdataClientContentStreamProducer implements ContentStreamProducer
     @Override
     public void close() throws Exception {
         if (closed.compareAndSet(false, true)) {
-            closeAndRemoveProducer.accept(producer.topic());
-            producer.close();
+            try {
+                // Publish all remaining buffered messages
+                publishAllBufferedMessages();
+            } finally {
+                closeAndRemoveProducer.accept(producer.topic());
+                producer.close();
+            }
         }
     }
 
+    private void publishAllBufferedMessages() {
+        List<RawdataMessage> allMessages = new ArrayList<>();
+        for (List<RawdataMessage> messages : bufferMap.values()) {
+            allMessages.addAll(messages);
+        }
+
+        if (!allMessages.isEmpty()) {
+            producer.publish(allMessages.toArray(new RawdataMessage[0]));
+        }
+
+        // Clear the buffer after publishing
+        bufferMap.clear();
+    }
 }
