@@ -222,6 +222,17 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>3.5.0</version>
+                        <configuration>
+                            <!--suppress UnresolvedMavenProperty -->
+                            <argLine>
+                                ${argLine}
+                            </argLine>
+                        </configuration>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
@@ -291,11 +302,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.0</version>
-                <configuration>
-                    <argLine>
-                        -Xmx1500m
-                    </argLine>
-                </configuration>
             </plugin>
 
             <plugin>
